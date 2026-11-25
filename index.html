@@ -730,16 +730,16 @@ function buildExactMatedAssembly() {
     let roughness = 0.60, metalness = 0.04, clearcoat = 0.0, clearcoatRoughness = 0.4, envMapIntensity = 0.25, polyOffset = false;
     let emissiveR = 0, emissiveG = 0, emissiveB = 0, emissiveInt = 0;
 
-    if (s === 755) {
+    if (s === 806 || s === 755) {
       // 12mm Power Button Glowing Cyan Ring LED & Power Symbol
       r = 0.0; g = 0.95; b = 1.0; roughness = 0.2; metalness = 0.1;
       emissiveR = 0.0; emissiveG = 0.85; emissiveB = 1.0; emissiveInt = 1.35;
       polyOffset = true;
     } else if (grp === 'cube_pwr_btn') {
-      if (s === 754 || s === 761) {
+      if (s === 805 || s === 812 || s === 754 || s === 761) {
         // 12mm Metal Power Button Body & Outer Chamfered Bezel: Brushed Stainless Steel / Titanium
         r = 0.44; g = 0.47; b = 0.52; roughness = 0.24; metalness = 0.90; clearcoat = 0.15; envMapIntensity = 1.3;
-      } else if (s === 760) {
+      } else if (s === 811 || s === 760) {
         // Black Rubber O-Ring Gasket
         r = 0.04; g = 0.045; b = 0.05; roughness = 0.72; metalness = 0.04;
       } else {
@@ -755,38 +755,43 @@ function buildExactMatedAssembly() {
         // Gearbox & Mounting Bracket: Machined Aluminum / Bright Steel
         r = 0.68; g = 0.71; b = 0.76; roughness = 0.28; metalness = 0.85; envMapIntensity = 1.20;
       }
-    } else if (s === 763 || s === 764) {
+    } else if (s === 814 || s === 815 || s === 763 || s === 764) {
       // Tail Antenna SMA Metal Hex Nut & Washer: Polished Chrome Steel
       r = 0.58; g = 0.61; b = 0.66; roughness = 0.22; metalness = 0.92; envMapIntensity = 1.3;
     } else if (r > 0.7 && g > 0.5 && b < 0.6) {
       // Brass Hex Wheel Couplings & Antenna Gold Collar Rings & Gold PCB Pads
       roughness = 0.22; metalness = 0.90; envMapIntensity = 1.25;
-    } else if (s === 2 || s === 13 || (g > 0.28 && r < 0.18)) {
-      // Custom Altium PCB (pcb_xiaozhi NEW s=2 & Base PCB s=13): Deep Matte/Satin Dark Emerald FR4 Solder Mask (Zero glare!)
+    } else if (s === 3 || s === 59 || s === 2 || s === 13 || (g > 0.28 && r < 0.18)) {
+      // Custom Altium PCB (pcb_xiaozhi NEW s=3 & Base PCB s=59): Deep Matte/Satin Dark Emerald FR4 Solder Mask (Zero glare!)
       r = 0.025; g = 0.27; b = 0.105; roughness = 0.54; metalness = 0.06; clearcoat = 0.0; envMapIntensity = 0.25;
     } else if (r < 0.08 && g < 0.08 && b < 0.10) {
       if (grp.startsWith('wheel_')) {
-        // 36 Angled Mecanum Rollers: Deep Matte Black Vulcanized Rubber (dark & high-contrast!)
+        // 36 Angled 97mm Mecanum Rollers: Deep Matte Black Vulcanized Rubber (dark & high-contrast!)
         r = 0.038; g = 0.042; b = 0.050; roughness = 0.70; metalness = 0.03; clearcoat = 0.0; envMapIntensity = 0.16;
       } else {
-        // Jet Matte Black PETG: 5 Top Pads (s=499), ReShape Gear-Circuit Logos (s=753, s=9), RESHAPE LAB Badge Pads (s=93,94)
+        // Jet Matte Black PETG: 5 Top Pads (s=531), ReShape Gear-Circuit Logos (s=804, s=12), RESHAPE LAB Badge Pads (s=118,119)
         r = 0.022; g = 0.025; b = 0.032; roughness = 0.64; metalness = 0.04; clearcoat = 0.0; envMapIntensity = 0.15;
         polyOffset = true;
       }
     } else if (r < 0.26 && g < 0.26 && b < 0.26) {
-      // Matte Black Polymer: Tail Dipole Whip Antenna Body (s=762,766,767,770), Battery Packs (s=8, s=573), INMP441 Mics
-      r = 0.045; g = 0.050; b = 0.060; roughness = 0.64; metalness = 0.05; clearcoat = 0.0; envMapIntensity = 0.18;
-    } else if (Math.abs(r - 0.315) < 0.04 && Math.abs(g - 0.315) < 0.04) {
-      // Dark 3D-Printed PETG Parts: Mecanum Base Chassis (s=4), Mecanum Bottom Covers (s=5,12), Mecanum Wheel Hubs, Front Bezel (s=7), ESP32-S3 CAM body (s=511)
       if (grp.startsWith('wheel_')) {
-        // Wheel Hub Plates: Deep Dark Charcoal Matte PETG (distinct against the jet-black rubber rollers)
+        // 97mm Mecanum Wheel Outer Cap Ring (s=24,62,698,793): Dark Gunmetal Accent
+        r = 0.16; g = 0.175; b = 0.20; roughness = 0.55; metalness = 0.15; clearcoat = 0.0; envMapIntensity = 0.25;
+      } else {
+        // Matte Black Polymer: Tail Dipole Whip Antenna Body, Battery Packs, INMP441 Mics
+        r = 0.045; g = 0.050; b = 0.060; roughness = 0.64; metalness = 0.05; clearcoat = 0.0; envMapIntensity = 0.18;
+      }
+    } else if (Math.abs(r - 0.315) < 0.04 && Math.abs(g - 0.315) < 0.04) {
+      // Dark 3D-Printed PETG Parts: 97mm Mecanum Base Chassis (s=4,10), Mecanum Bottom Cover (s=0), 97mm Mecanum Wheel Hubs, Front Bezel (s=6), ESP32-S3 CAM body (s=601)
+      if (grp.startsWith('wheel_')) {
+        // 97mm Wheel Hub Halves: Deep Dark Charcoal Matte PETG (distinct against the jet-black rubber rollers)
         r = 0.095; g = 0.105; b = 0.122; roughness = 0.62; metalness = 0.05; clearcoat = 0.0; envMapIntensity = 0.20;
       } else {
         // Mecanum Chassis & Front Bezel: Deep Anthracite / Charcoal Matte PETG (No more washed-out grey!)
         r = 0.075; g = 0.082; b = 0.096; roughness = 0.64; metalness = 0.04; clearcoat = 0.0; envMapIntensity = 0.18;
       }
     } else if (r > 0.7 && g > 0.7 && b > 0.7) {
-      if (s === 514 || s === 515) {
+      if (s === 589 || s === 604 || s === 514 || s === 515) {
         // White 3D Letters "RESHAPE LAB" on the black side badge pad: Pure Crisp Matte White PETG
         r = 0.96; g = 0.97; b = 0.99; roughness = 0.55; metalness = 0.02; clearcoat = 0.0; envMapIntensity = 0.20;
         polyOffset = true;
@@ -794,7 +799,7 @@ function buildExactMatedAssembly() {
         // Metal USB-C Ports, IC Pins & Connectors on PCBs
         r = 0.62; g = 0.65; b = 0.70; roughness = 0.28; metalness = 0.82; envMapIntensity = 1.0;
       } else {
-        // White 3D-Printed PETG Shells (nắp thân trên s=1, nắp thân dưới s=0, đế lót s=3, gá cam s=512,513, nắp khóa đáy s=6):
+        // White 3D-Printed PETG Shells (nắp thân trên s=2, nắp thân dưới s=1, đế lót s=5, gá cam s=602,603):
         // Matte PETG White (softened to 0.87 so bevels, holes & 12mm metal button have crisp shading and zero glare!)
         r = 0.86; g = 0.88; b = 0.91; roughness = 0.62; metalness = 0.03; clearcoat = 0.0; envMapIntensity = 0.22;
       }
@@ -831,7 +836,7 @@ function buildExactMatedAssembly() {
 
   // 3. Instantiate all mated CAD occurrences from v3 OGS_Scene
   for (const ins of data.instances) {
-    if (ins.grp === 'cube_eyes' || ins.s === 92 || ins.s === 500) continue; // Skip static 3D white eye blocks
+    if (ins.grp === 'cube_eyes' || ins.s === 117 || ins.s === 532) continue; // Skip static 3D white eye blocks
     const baseGeom = geoms[ins.gIdx];
     if (!baseGeom) continue;
     const targetGrp = groups[ins.grp] || groups.cube_pcb;
@@ -1654,8 +1659,8 @@ function animate(now) {
     const zSign = p[2] >= 0 ? 1 : -1;
     groups[wName].position.set(p[0], p[1] - exp * 64, p[2] + zSign * exp * 50);
   });
-  floorMesh.position.y  = -78.0 - exp * 120;
-  gridHelper.position.y = -77.8 - exp * 120;
+  floorMesh.position.y  = -87.2 - exp * 120;
+  gridHelper.position.y = -87.0 - exp * 120;
 
   // Smooth Dynamic Robot Choreography (using smooth sin envelopes so robot position never jumps at Act boundaries!)
   const tSec = isPlaying ? playTime : now * 0.001;
