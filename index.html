@@ -1,0 +1,1904 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="XIAOZHI PRO — Interactive 3D Robot & Commercial Studio | ReShape Lab" />
+<meta property="og:description" content="Trải nghiệm mô hình 3D tương tác 360°, tách lớp cơ khí - mạch Altium PCB 16 tầng và xem video giới thiệu Robot AI Xiaozhi Pro trực tiếp trên trình duyệt (ReShape Lab - FPT Polytechnic Đà Nẵng)." />
+<meta name="theme-color" content="#05070b" />
+<title>XIAOZHI PRO — 100% Mated Inventor 3D Studio (45s Commercial + 30s Sim-to-Real Reachy Media) | ReShape Lab</title>
+<style>
+  :root {
+    --bg: #050608;
+    --panel: rgba(12, 15, 22, 0.84);
+    --border: rgba(255, 255, 255, 0.14);
+    --apple-blue: #2997ff;
+    --nvidia-green: #76b900;
+    --reachy-amber: #ff9f0a;
+    --cyan: #00f0ff;
+    --text: #f5f5f7;
+    --sub: #9ca3af;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+  body, html {
+    width: 100%; height: 100%; overflow: hidden;
+    background: #000;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+    color: var(--text);
+  }
+  #stage-wrap {
+    position: relative;
+    width: 100vw; height: 100vh;
+    background: #05070b;
+  }
+  canvas#gl-canvas {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    display: block;
+  }
+
+  .letterbox {
+    position: absolute; left: 0; right: 0;
+    height: 0vh;
+    background: #000;
+    z-index: 15;
+    transition: height 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+  }
+  .letterbox.top { top: 0; }
+  .letterbox.bot { bottom: 0; }
+  body.cinema-active .letterbox { height: 5.5vh; }
+
+  #top-bar {
+    position: absolute; top: 14px; left: 20px; right: 20px;
+    display: flex; justify-content: space-between; align-items: center;
+    z-index: 30;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
+  .brand-pill {
+    pointer-events: auto;
+    display: flex; align-items: center; gap: 12px;
+    padding: 8px 16px;
+    background: var(--panel);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+  .brand-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--nvidia-green);
+    box-shadow: 0 0 12px var(--nvidia-green);
+  }
+  .brand-title {
+    font-size: 12px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: #fff;
+  }
+  .brand-sub {
+    font-size: 11px; color: var(--sub);
+  }
+
+  /* Mode Switcher Tabs at Top Center */
+  .mode-tabs {
+    pointer-events: auto;
+    display: flex; gap: 6px;
+    padding: 5px;
+    background: var(--panel);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+  }
+  .mode-tab {
+    appearance: none; border: none;
+    background: transparent;
+    color: var(--sub);
+    padding: 7px 16px;
+    border-radius: 999px;
+    font-size: 12px; font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .mode-tab.active-commercial {
+    background: linear-gradient(135deg, #2997ff, #0066cc);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(41,151,255,0.4);
+  }
+  .mode-tab.active-media {
+    background: linear-gradient(135deg, #ff9f0a, #d97706);
+    color: #000;
+    box-shadow: 0 4px 16px rgba(255,159,10,0.45);
+  }
+
+  #control-dock {
+    position: absolute; bottom: 16px; left: 50%;
+    transform: translateX(-50%);
+    z-index: 30;
+    display: flex; flex-direction: column; gap: 8px;
+    align-items: center;
+    width: min(1220px, 96vw);
+  }
+  .timeline-bar {
+    width: 100%; height: 7px;
+    background: rgba(255,255,255,0.14);
+    border-radius: 99px;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .timeline-fill {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, var(--apple-blue), var(--cyan), var(--nvidia-green));
+    box-shadow: 0 0 12px var(--cyan);
+  }
+  .dock-row {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    justify-content: center; align-items: center;
+    padding: 9px 14px;
+    background: var(--panel);
+    backdrop-filter: blur(24px);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+  }
+  button.btn {
+    appearance: none; border: 1px solid rgba(255,255,255,0.14);
+    background: rgba(255,255,255,0.06);
+    color: #fff;
+    padding: 7px 12px;
+    border-radius: 9px;
+    font-size: 11.5px; font-weight: 600;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 5px;
+    transition: all 0.18s ease;
+  }
+  button.btn:hover {
+    background: rgba(255,255,255,0.16);
+    border-color: rgba(255,255,255,0.35);
+    transform: translateY(-1px);
+  }
+  button.btn.active {
+    background: rgba(0, 240, 255, 0.2);
+    border-color: var(--cyan);
+    color: #7ef9ff;
+    box-shadow: 0 0 14px rgba(0, 240, 255, 0.3);
+  }
+  button.btn-primary {
+    background: linear-gradient(135deg, #2997ff 0%, #0071e3 100%);
+    border-color: #52adff;
+    padding: 8px 16px;
+    font-size: 12.5px;
+    box-shadow: 0 5px 18px rgba(41,151,255,0.4);
+  }
+  button.btn-record {
+    background: linear-gradient(135deg, #ff3b30 0%, #c81e14 100%);
+    border-color: #ff6961;
+    padding: 8px 16px;
+    font-size: 12.5px;
+    box-shadow: 0 5px 18px rgba(255,59,48,0.4);
+  }
+  button.btn-record.recording {
+    animation: pulseRec 0.9s infinite alternate;
+  }
+  @keyframes pulseRec {
+    from { box-shadow: 0 0 10px rgba(255,59,48,0.5); transform: scale(1); }
+    to { box-shadow: 0 0 24px rgba(255,59,48,1); transform: scale(1.03); }
+  }
+  .divider {
+    width: 1px; height: 20px; background: rgba(255,255,255,0.14); margin: 0 3px;
+  }
+  #rec-badge {
+    position: absolute; top: 68px; right: 24px;
+    z-index: 40;
+    display: none; align-items: center; gap: 8px;
+    padding: 6px 14px;
+    border-radius: 99px;
+    background: rgba(220, 38, 38, 0.25);
+    border: 1px solid #ef4444;
+    color: #fca5a5;
+    font-size: 12px; font-weight: 700;
+  }
+  #rec-badge.show { display: flex; }
+  .rec-dot {
+    width: 9px; height: 9px; border-radius: 50%; background: #ef4444;
+    animation: pulseRec 0.6s infinite alternate;
+  }
+
+  @media (max-width: 768px) {
+    #top-bar { top: 8px; left: 8px; right: 8px; flex-wrap: wrap; gap: 6px; justify-content: center; }
+    .brand-pill { padding: 5px 10px; }
+    .brand-title { font-size: 10px; }
+    .brand-sub { display: none; }
+    .mode-tab { padding: 5px 10px; font-size: 10.5px; }
+    #control-dock { bottom: 8px; width: 98vw; gap: 5px; }
+    .dock-row { padding: 6px 8px; gap: 4px; }
+    button.btn { padding: 5px 8px; font-size: 10px; }
+    button.btn-primary, button.btn-record { padding: 6px 10px; font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+<div id="stage-wrap">
+  <div class="letterbox top"></div>
+  <div class="letterbox bot"></div>
+
+  <canvas id="gl-canvas"></canvas>
+  <!-- Hidden video element for optional Real Robot Video / Webcam Sim-to-Real Split Screen -->
+  <video id="real-video" loop muted playsinline style="display:none"></video>
+  <input type="file" id="video-file-input" accept="video/*" style="display:none" />
+
+  <div id="top-bar">
+    <div class="brand-pill">
+      <div class="brand-dot"></div>
+      <div>
+        <div class="brand-title">RESHAPE LAB • XIAOZHI PRO (100% MATED INVENTOR IAM)</div>
+        <div class="brand-sub">401 CAD Occurrences • Real MacWheel_WN • Real Altium PCB</div>
+      </div>
+    </div>
+
+    <div class="mode-tabs">
+      <button class="mode-tab active-commercial" id="tab-commercial">🎬 VID 1: RESHAPE COMMERCIAL (45s)</button>
+      <button class="mode-tab" id="tab-media">🤖 VID 2: SIM-TO-REAL &amp; REACHY MEDIA (30s)</button>
+    </div>
+
+    <div class="brand-pill" style="gap:14px">
+      <span id="time-readout" style="font-family:monospace;font-size:13px;color:#00f0ff">00:00.0 / 00:45.0</span>
+      <span id="act-readout" style="font-size:11.5px;font-weight:700;color:#f5f5f7">READY</span>
+    </div>
+  </div>
+
+  <div id="rec-badge">
+    <div class="rec-dot"></div>
+    <span id="rec-text">REC 60FPS</span>
+  </div>
+
+  <div id="control-dock">
+    <div class="timeline-bar" id="timeline-bar">
+      <div class="timeline-fill" id="timeline-fill"></div>
+    </div>
+    <div class="dock-row" id="scene-buttons-row">
+      <button class="btn btn-primary" id="btn-play">▶ PHÁT VIDEO (CÓ ÂM THANH)</button>
+      <button class="btn btn-record" id="btn-record">🔴 GHI &amp; TẢI VIDEO (.WEBM / MP4 60FPS)</button>
+      <div class="divider"></div>
+      <div id="dynamic-scene-btns" style="display:flex;gap:5px;flex-wrap:wrap"></div>
+      <div class="divider"></div>
+      <button class="btn" id="btn-simreal" title="Chế độ Quét Split-Screen Sim-to-Real">🌓 Sim-to-Real Split</button>
+      <button class="btn" id="btn-realcam" title="Ghép Webcam hoặc Video quay Robot thật vào nửa phải Sim-to-Real">📷 Ghép Video/Cam Thật</button>
+      <button class="btn" id="btn-explode">💥 Tách Lớp 3D</button>
+      <button class="btn" id="btn-audio">🔊 Nhạc: BẬT</button>
+    </div>
+  </div>
+</div>
+
+<!-- 100% Exact Mated Inventor Assembly Data -->
+<script src="xiaozhi_meshes.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+<script>
+// ============================================================================
+// 1. DUAL-STYLE SOUND ENGINE (Apple/NVIDIA Epic Synth + Reachy Playful Pluck)
+// ============================================================================
+class DualSoundEngine {
+  constructor() {
+    this.ctx = null;
+    this.dest = null;
+    this.enabled = true;
+    this.lastCue = -1;
+  }
+  init() {
+    if (this.ctx) return;
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    this.ctx = new AudioCtx();
+    this.master = this.ctx.createGain();
+    this.master.gain.value = 0.78;
+    this.master.connect(this.ctx.destination);
+    this.dest = this.ctx.createMediaStreamDestination();
+    this.master.connect(this.dest);
+  }
+  resume() {
+    this.init();
+    if (this.ctx.state === 'suspended') this.ctx.resume();
+  }
+  playBassDrop(f1 = 100, f2 = 28, dur = 2.4, vol = 0.55) {
+    if (!this.enabled || !this.ctx) return;
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(f1, t);
+    osc.frequency.exponentialRampToValueAtTime(f2, t + dur);
+    g.gain.setValueAtTime(0.001, t);
+    g.gain.linearRampToValueAtTime(vol, t + 0.04);
+    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    osc.connect(g); g.connect(this.master);
+    osc.start(t); osc.stop(t + dur);
+  }
+  playChord(freqs, dur = 4.0, vol = 0.08) {
+    if (!this.enabled || !this.ctx) return;
+    const t = this.ctx.currentTime;
+    freqs.forEach((f, idx) => {
+      const osc = this.ctx.createOscillator();
+      const filt = this.ctx.createBiquadFilter();
+      const g = this.ctx.createGain();
+      osc.type = idx % 2 === 0 ? 'sawtooth' : 'triangle';
+      osc.frequency.setValueAtTime(f, t);
+      osc.detune.setValueAtTime((idx - 1.5) * 7, t);
+      filt.type = 'lowpass';
+      filt.frequency.setValueAtTime(350, t);
+      filt.frequency.exponentialRampToValueAtTime(1900, t + dur * 0.45);
+      filt.frequency.exponentialRampToValueAtTime(420, t + dur);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(vol, t + 0.5);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      osc.connect(filt); filt.connect(g); g.connect(this.master);
+      osc.start(t); osc.stop(t + dur);
+    });
+  }
+  // Reachy Mini / Hugging Face style warm upbeat marimba/synth pluck arpeggio!
+  playReachyArpeggio(notes = [523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5], step = 0.14, vol = 0.16) {
+    if (!this.enabled || !this.ctx) return;
+    notes.forEach((n, i) => {
+      const t = this.ctx.currentTime + i * step;
+      const osc = this.ctx.createOscillator();
+      const g = this.ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(n, t);
+      g.gain.setValueAtTime(0.001, t);
+      g.gain.linearRampToValueAtTime(vol, t + 0.015);
+      g.gain.exponentialRampToValueAtTime(0.0008, t + 0.38);
+      osc.connect(g); g.connect(this.master);
+      osc.start(t); osc.stop(t + 0.4);
+    });
+  }
+  // Cute Robot Voice Bleep (R2D2 / Cozmo / Reachy Mini expressive chirp)
+  playRobotChirp() {
+    if (!this.enabled || !this.ctx) return;
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(680, t);
+    osc.frequency.exponentialRampToValueAtTime(1420, t + 0.09);
+    osc.frequency.exponentialRampToValueAtTime(960, t + 0.18);
+    osc.frequency.exponentialRampToValueAtTime(1680, t + 0.28);
+    g.gain.setValueAtTime(0.001, t);
+    g.gain.linearRampToValueAtTime(0.18, t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.32);
+    osc.connect(g); g.connect(this.master);
+    osc.start(t); osc.stop(t + 0.34);
+  }
+  playLaserSweep(dur = 1.6) {
+    if (!this.enabled || !this.ctx) return;
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const filt = this.ctx.createBiquadFilter();
+    const g = this.ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(150, t);
+    osc.frequency.exponentialRampToValueAtTime(920, t + dur * 0.5);
+    osc.frequency.exponentialRampToValueAtTime(180, t + dur);
+    filt.type = 'bandpass'; filt.Q.value = 5.5;
+    filt.frequency.setValueAtTime(450, t);
+    filt.frequency.exponentialRampToValueAtTime(3000, t + dur * 0.5);
+    g.gain.setValueAtTime(0.001, t);
+    g.gain.linearRampToValueAtTime(0.13, t + 0.15);
+    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    osc.connect(filt); filt.connect(g); g.connect(this.master);
+    osc.start(t); osc.stop(t + dur);
+  }
+  triggerCues(mode, sec) {
+    const cues = mode === 'commercial' ? [
+      { t: 0.1, fn: () => { this.playBassDrop(95, 28, 2.6, 0.58); this.playChord([146.83, 220, 293.66, 369.99], 6.5, 0.08); } },
+      { t: 2.5, fn: () => this.playRobotChirp() },
+      { t: 7.0, fn: () => { this.playBassDrop(115, 34, 1.8, 0.45); this.playChord([164.81, 246.94, 329.63, 493.88], 7.5, 0.08); } },
+      { t: 15.0, fn: () => { this.playBassDrop(135, 30, 2.4, 0.58); this.playLaserSweep(2.0); this.playChord([185.0, 277.18, 369.99, 554.37], 9.0, 0.09); } },
+      { t: 26.0, fn: () => { this.playBassDrop(110, 32, 2.2, 0.52); this.playReachyArpeggio([440, 554.37, 659.25, 880], 0.11, 0.14); this.playChord([196.0, 293.66, 392.0, 587.33], 8.5, 0.09); } },
+      { t: 35.0, fn: () => { this.playBassDrop(125, 35, 2.0, 0.48); this.playChord([220, 329.63, 440, 659.25], 5.0, 0.09); } },
+      { t: 40.0, fn: () => { this.playBassDrop(105, 26, 3.4, 0.62); this.playChord([146.83, 220, 293.66, 440, 587.33, 880], 5.0, 0.11); this.playRobotChirp(); } }
+    ] : [
+      // 30s SIM-TO-REAL & REACHY MINI MEDIA VIDEO CUES
+      { t: 0.1, fn: () => { this.playReachyArpeggio([523.25, 659.25, 783.99, 1046.5, 1318.5], 0.11, 0.18); this.playChord([261.63, 329.63, 392.0, 523.25], 5.8, 0.08); } },
+      { t: 1.8, fn: () => this.playRobotChirp() },
+      { t: 6.0, fn: () => { this.playBassDrop(120, 35, 1.6, 0.48); this.playLaserSweep(1.5); this.playChord([220, 277.18, 329.63, 440], 6.8, 0.09); } },
+      { t: 13.0, fn: () => { this.playRobotChirp(); this.playReachyArpeggio([587.33, 739.99, 880, 1174.66], 0.12, 0.16); this.playChord([293.66, 369.99, 440, 587.33], 6.0, 0.09); } },
+      { t: 19.0, fn: () => { this.playBassDrop(110, 32, 1.8, 0.5); this.playChord([196.0, 293.66, 392.0, 587.33], 6.0, 0.09); } },
+      { t: 25.0, fn: () => { this.playBassDrop(100, 28, 2.5, 0.58); this.playReachyArpeggio([523.25, 659.25, 783.99, 1046.5, 1567.98], 0.10, 0.19); this.playRobotChirp(); } }
+    ];
+    for (let i = 0; i < cues.length; i++) {
+      if (sec >= cues[i].t && this.lastCue < i && sec - cues[i].t < 0.5) {
+        this.lastCue = i;
+        cues[i].fn();
+      }
+    }
+  }
+}
+const sound = new DualSoundEngine();
+
+// ============================================================================
+// 2. THREE.JS SCENE & STUDIO LIGHTING (CLEAN, BRIGHT, PHOTOREALISTIC CAD)
+// ============================================================================
+const outCanvas = document.getElementById('gl-canvas');
+const outCtx = outCanvas.getContext('2d');
+
+const webglCanvas = document.createElement('canvas');
+const renderer = new THREE.WebGLRenderer({
+  canvas: webglCanvas,
+  antialias: true,
+  powerPreference: 'high-performance'
+});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 0.90;
+renderer.outputEncoding = THREE.sRGBEncoding;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x05070b);
+
+// Subtle Studio Environment Map (tuned so real metal parts shine while 3D-printed PETG stays matte & high-contrast)
+function buildStudioEnvironment(ren) {
+  const pmrem = new THREE.PMREMGenerator(ren);
+  pmrem.compileCubemapShader();
+  const envScene = new THREE.Scene();
+  envScene.background = new THREE.Color(0x05070c);
+
+  const addSoftbox = (w, h, color, intensity, x, y, z, rx, ry, rz) => {
+    const m = new THREE.Mesh(
+      new THREE.PlaneGeometry(w, h),
+      new THREE.MeshBasicMaterial({ color: new THREE.Color(color).multiplyScalar(intensity), side: THREE.DoubleSide })
+    );
+    m.position.set(x, y, z);
+    m.rotation.set(rx, ry, rz);
+    envScene.add(m);
+  };
+  addSoftbox(550, 550, 0xffffff, 1.05, 0, 500, 0, Math.PI / 2, 0, 0);
+  addSoftbox(420, 300, 0xf1f5f9, 0.85, 420, 220, 380, -0.35, -0.75, 0);
+  addSoftbox(420, 320, 0x38bdf8, 0.70, -450, 180, -280, 0.25, 0.85, 0);
+  addSoftbox(480, 160, 0x93c5fd, 0.75, -380, 280, 320, -0.4, 2.2, 0);
+
+  const envRT = pmrem.fromScene(envScene, 0.04);
+  pmrem.dispose();
+  return envRT.texture;
+}
+scene.environment = buildStudioEnvironment(renderer);
+const camera = new THREE.PerspectiveCamera(34, window.innerWidth / window.innerHeight, 2, 4000);
+camera.position.set(340, 210, 310);
+
+const controls = new THREE.OrbitControls(camera, outCanvas);
+controls.enableDamping = true;
+controls.dampingFactor = 0.06;
+controls.target.set(0, 12, 0);
+
+function onResize() {
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  const dpr = Math.min(window.devicePixelRatio, 2);
+  outCanvas.width = w * dpr;
+  outCanvas.height = h * dpr;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+window.addEventListener('resize', onResize);
+onResize();
+
+// Multi-Light Studio Setup (No harsh dark sides!)
+const hemiLight = new THREE.HemisphereLight(0xe2e8f0, 0x111827, 0.56);
+scene.add(hemiLight);
+
+const keyLight = new THREE.DirectionalLight(0xffffff, 0.98);
+keyLight.position.set(260, 420, 240);
+keyLight.castShadow = true;
+keyLight.shadow.mapSize.width = 2048;
+keyLight.shadow.mapSize.height = 2048;
+keyLight.shadow.camera.near = 60;
+keyLight.shadow.camera.far = 1100;
+const d = 240;
+keyLight.shadow.camera.left = -d; keyLight.shadow.camera.right = d;
+keyLight.shadow.camera.top = d;  keyLight.shadow.camera.bottom = -d;
+keyLight.shadow.bias = -0.0005;
+scene.add(keyLight);
+
+const fillLightLeft = new THREE.DirectionalLight(0x93c5fd, 0.52);
+fillLightLeft.position.set(-280, 190, -220);
+scene.add(fillLightLeft);
+
+const rimLightFront = new THREE.DirectionalLight(0x38bdf8, 0.42);
+rimLightFront.position.set(320, 80, -240);
+scene.add(rimLightFront);
+
+// Studio Floor + Precision Metric Grid
+const floorGeo = new THREE.PlaneGeometry(3200, 3200);
+const floorMat = new THREE.MeshPhysicalMaterial({
+  color: 0x070a10,
+  roughness: 0.24,
+  metalness: 0.55,
+  clearcoat: 0.35,
+  clearcoatRoughness: 0.28
+});
+const floorMesh = new THREE.Mesh(floorGeo, floorMat);
+floorMesh.rotation.x = -Math.PI / 2;
+floorMesh.position.y = -78.0;
+floorMesh.receiveShadow = true;
+scene.add(floorMesh);
+
+const gridHelper = new THREE.GridHelper(1400, 40, 0x0ea5e9, 0x111827);
+gridHelper.position.y = -77.8;
+gridHelper.material.transparent = true;
+gridHelper.material.opacity = 0.09;
+scene.add(gridHelper);
+
+// ============================================================================
+// 3. LIVING AI EYES 2D CANVAS TEXTURE (MOUNTED IN FRONT BEZEL AT X = +55.4)
+// ============================================================================
+const eyeCanvas = document.createElement('canvas');
+eyeCanvas.width = 512;
+eyeCanvas.height = 384;
+const eyeCtx = eyeCanvas.getContext('2d');
+const eyeTexture = new THREE.CanvasTexture(eyeCanvas);
+
+function updateLivingEyes(time, mode, actId) {
+  const ctx = eyeCtx;
+  ctx.fillStyle = '#05070c';
+  ctx.fillRect(0, 0, 512, 384);
+
+  // Subtle scanlines
+  ctx.fillStyle = 'rgba(0, 240, 255, 0.035)';
+  for (let y = 0; y < 384; y += 4) ctx.fillRect(0, y, 512, 1);
+
+  const blinkCycle = time % 3.4;
+  let openRatio = 1.0;
+  if (blinkCycle > 3.18 && blinkCycle < 3.36) {
+    openRatio = Math.abs((blinkCycle - 3.27) * 11);
+  }
+  if (mode === 'commercial' && actId === 0 && time < 2.2) {
+    openRatio = Math.max(0.04, Math.min(1.0, (time - 1.0) * 1.1));
+  }
+
+  const lookX = Math.sin(time * 1.8) * 20;
+  const lookY = Math.cos(time * 1.2) * 9;
+
+  ctx.save();
+  ctx.shadowColor = mode === 'media' ? '#38bdf8' : '#00f0ff';
+  ctx.shadowBlur = 26;
+  ctx.fillStyle = '#ffffff';
+
+  const ew = 136;
+  const eh = Math.max(8, 128 * openRatio);
+  const rad = Math.min(20, eh / 2);
+
+  const drawEye = (x, y, w, h, r) => {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+    ctx.fill();
+  };
+
+  drawEye(88 + lookX, 198 - eh / 2 + lookY, ew, eh, rad);
+  drawEye(288 + lookX, 198 - eh / 2 + lookY, ew, eh, rad);
+
+  // Reachy Mini / Cozmo style expressive happy eye arcs
+  if (openRatio > 0.55 && ((mode === 'media' && (actId === 0 || actId === 2 || actId === 4)) || (mode === 'commercial' && actId === 5))) {
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#05070c';
+    ctx.beginPath();
+    ctx.arc(88 + ew / 2 + lookX, 198 + eh / 2 + 24 + lookY, 68, Math.PI * 1.15, Math.PI * 1.85);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(288 + ew / 2 + lookX, 198 + eh / 2 + 24 + lookY, 68, Math.PI * 1.15, Math.PI * 1.85);
+    ctx.fill();
+  }
+  ctx.restore();
+
+  // Voice AI waveform at bottom of TFT screen when speaking
+  if (mode === 'media' && (actId === 0 || actId === 2)) {
+    ctx.fillStyle = '#00f0ff';
+    for (let b = 0; b < 24; b++) {
+      const bh = 6 + Math.abs(Math.sin(time * 12 + b * 0.55)) * 22;
+      ctx.fillRect(136 + b * 10, 355 - bh / 2, 6, bh);
+    }
+  }
+  eyeTexture.needsUpdate = true;
+}
+
+// ============================================================================
+// 4. UNPACK & BUILD 100% EXACT MATED `xiaozhi_robot.iam` ASSEMBLY
+// ============================================================================
+const robotRoot = new THREE.Group();
+scene.add(robotRoot);
+
+const groups = {
+  cube_cam:     new THREE.Group(), // ESP32-S3-MOUDULECAM_MINI + Turret brackets
+  cube_antenna: new THREE.Group(), // Rear Tail Dipole Whip Antenna + SMA
+  cube_pwr_btn: new THREE.Group(), // Rear 12mm Metal Power Button with LED
+  cube_top:     new THREE.Group(), // Top Shell + ReShape Gear-Circuit Logo + 5 Black Pads + RESHAPE LAB Badges
+  cube_display: new THREE.Group(), // Front Bezel + 2.8" ILI9341 TFT
+  cube_eyes:    new THREE.Group(),
+  cube_pcb:     new THREE.Group(), // Custom Altium PCB (pcb_xiaozhi NEW) + WeAct ESP32-S3 + Dual INMP441
+  cube_battery: new THREE.Group(), // Cube Battery Pack
+  cube_bot:     new THREE.Group(), // Bottom Cube Shell (with flashing holes)
+  dock_plate:   new THREE.Group(), // Top Docking Plate (đế lót + ReShape Gear-Circuit Logo)
+  base_pcb:     new THREE.Group(), // Mecanum Base Controller PCB
+  base_chassis: new THREE.Group(), // Mecanum Upper Chassis (đế xe mecanum)
+  base_motors:  new THREE.Group(), // 4x Metal Johnson Geared Motors + Brackets
+  base_battery: new THREE.Group(), // 4x18650 Base Battery Box
+  base_bottom:  new THREE.Group(), // Mecanum Bottom Cover Plates (đế xe mecanum dưới)
+  wheel_FL:     new THREE.Group(),
+  wheel_FR:     new THREE.Group(),
+  wheel_RL:     new THREE.Group(),
+  wheel_RR:     new THREE.Group()
+};
+Object.values(groups).forEach(g => robotRoot.add(g));
+
+const allShadedMaterials = [];
+const cadEdgeLines = [];
+
+function parseBase64STL(b64) {
+  const bin = atob(b64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  const dv = new DataView(bytes.buffer);
+  const nTris = dv.getUint32(80, true);
+  const positions = new Float32Array(nTris * 9);
+  const normals = new Float32Array(nTris * 9);
+  let offset = 84;
+  for (let i = 0; i < nTris; i++) {
+    const nx = dv.getFloat32(offset, true);
+    const ny = dv.getFloat32(offset + 4, true);
+    const nz = dv.getFloat32(offset + 8, true);
+    for (let v = 0; v < 3; v++) {
+      const vo = offset + 12 + v * 12;
+      const idx = i * 9 + v * 3;
+      positions[idx]     = dv.getFloat32(vo, true);
+      positions[idx + 1] = dv.getFloat32(vo + 4, true);
+      positions[idx + 2] = dv.getFloat32(vo + 8, true);
+      normals[idx]       = nx;
+      normals[idx + 1]   = ny;
+      normals[idx + 2]   = nz;
+    }
+    offset += 50;
+  }
+  const geom = new THREE.BufferGeometry();
+  geom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  geom.setAttribute('normal', new THREE.BufferAttribute(normals, 3));
+  return geom;
+}
+
+function unpackOgsGeometries(b64) {
+  const bin = atob(b64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  const dv = new DataView(bytes.buffer);
+  let ptr = 0;
+  const numGeoms = dv.getUint32(ptr, true); ptr += 4;
+  const geoms = [];
+
+  for (let g = 0; g < numGeoms; g++) {
+    const nVerts = dv.getUint32(ptr, true); ptr += 4;
+    const nIndices = dv.getUint32(ptr, true); ptr += 4;
+    const positions = new Float32Array(nVerts * 3);
+    const normals = new Float32Array(nVerts * 3);
+
+    for (let v = 0; v < nVerts; v++) {
+      positions[v * 3]     = dv.getFloat32(ptr, true);
+      positions[v * 3 + 1] = dv.getFloat32(ptr + 4, true);
+      positions[v * 3 + 2] = dv.getFloat32(ptr + 8, true);
+      normals[v * 3]       = dv.getFloat32(ptr + 12, true);
+      normals[v * 3 + 1]   = dv.getFloat32(ptr + 16, true);
+      normals[v * 3 + 2]   = dv.getFloat32(ptr + 20, true);
+      ptr += 24;
+    }
+    const indices = new Uint16Array(nIndices);
+    for (let k = 0; k < nIndices; k++) {
+      indices[k] = dv.getUint16(ptr + k * 2, true);
+    }
+    ptr += (nIndices * 2 + 3) & ~3;
+
+    const geom = new THREE.BufferGeometry();
+    geom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geom.setAttribute('normal', new THREE.BufferAttribute(normals, 3));
+    geom.setIndex(new THREE.BufferAttribute(indices, 1));
+    geoms.push(geom);
+  }
+  return geoms;
+}
+
+function buildExactMatedAssembly() {
+  const data = window.XIAOZHI_IAM_DATA;
+  if (!data) return;
+
+  // 1. Set exact wheel group pivots so rotation.x spins each Mecanum wheel around its true axle!
+  Object.entries(data.wheelPivots).forEach(([wName, piv]) => {
+    if (groups[wName]) groups[wName].position.set(piv[0], piv[1], piv[2]);
+  });
+
+  // 2. Unpack all 212 unique CAD geometries
+  const geoms = unpackOgsGeometries(data.ogsGeomsB64);
+
+  // Physically Accurate Material System:
+  // - 3D-Printed Parts (Shells, Base Chassis, Wheel Hubs, Pads, Logos): Matte 3D-Printed PETG (clearcoat = 0, metalness = 0.04, roughness = 0.60..0.68)
+  // - True Metal Parts ONLY: 12mm Metal Power Button (cube_pwr_btn), 4x Johnson Geared Motors (base_motors), Brass Hex Couplings & SMA Nut
+  const matCache = new Map();
+  function getMaterial(rgb, grp, s) {
+    let [r, g, b] = rgb;
+    let roughness = 0.60, metalness = 0.04, clearcoat = 0.0, clearcoatRoughness = 0.4, envMapIntensity = 0.25, polyOffset = false;
+    let emissiveR = 0, emissiveG = 0, emissiveB = 0, emissiveInt = 0;
+
+    if (s === 755) {
+      // 12mm Power Button Glowing Cyan Ring LED & Power Symbol
+      r = 0.0; g = 0.95; b = 1.0; roughness = 0.2; metalness = 0.1;
+      emissiveR = 0.0; emissiveG = 0.85; emissiveB = 1.0; emissiveInt = 1.35;
+      polyOffset = true;
+    } else if (grp === 'cube_pwr_btn') {
+      if (s === 754 || s === 761) {
+        // 12mm Metal Power Button Body & Outer Chamfered Bezel: Brushed Stainless Steel / Titanium
+        r = 0.44; g = 0.47; b = 0.52; roughness = 0.24; metalness = 0.90; clearcoat = 0.15; envMapIntensity = 1.3;
+      } else if (s === 760) {
+        // Black Rubber O-Ring Gasket
+        r = 0.04; g = 0.045; b = 0.05; roughness = 0.72; metalness = 0.04;
+      } else {
+        // Brass/Gold Switch Terminal Pins
+        r = 0.85; g = 0.66; b = 0.22; roughness = 0.22; metalness = 0.92; envMapIntensity = 1.25;
+      }
+    } else if (grp === 'base_motors') {
+      // 4x Johnson Geared Motors + Brackets + Shafts under Mecanum Base: Real Brushed Steel & Alloy Metal!
+      if (r < 0.6) {
+        // DC Motor Brushed Steel Cylinder Housing
+        r = 0.46; g = 0.49; b = 0.54; roughness = 0.26; metalness = 0.88; envMapIntensity = 1.25;
+      } else {
+        // Gearbox & Mounting Bracket: Machined Aluminum / Bright Steel
+        r = 0.68; g = 0.71; b = 0.76; roughness = 0.28; metalness = 0.85; envMapIntensity = 1.20;
+      }
+    } else if (s === 763 || s === 764) {
+      // Tail Antenna SMA Metal Hex Nut & Washer: Polished Chrome Steel
+      r = 0.58; g = 0.61; b = 0.66; roughness = 0.22; metalness = 0.92; envMapIntensity = 1.3;
+    } else if (r > 0.7 && g > 0.5 && b < 0.6) {
+      // Brass Hex Wheel Couplings & Antenna Gold Collar Rings & Gold PCB Pads
+      roughness = 0.22; metalness = 0.90; envMapIntensity = 1.25;
+    } else if (s === 2 || s === 13 || (g > 0.28 && r < 0.18)) {
+      // Custom Altium PCB (pcb_xiaozhi NEW s=2 & Base PCB s=13): Deep Matte/Satin Dark Emerald FR4 Solder Mask (Zero glare!)
+      r = 0.025; g = 0.27; b = 0.105; roughness = 0.54; metalness = 0.06; clearcoat = 0.0; envMapIntensity = 0.25;
+    } else if (r < 0.08 && g < 0.08 && b < 0.10) {
+      if (grp.startsWith('wheel_')) {
+        // 36 Angled Mecanum Rollers: Deep Matte Black Vulcanized Rubber (dark & high-contrast!)
+        r = 0.038; g = 0.042; b = 0.050; roughness = 0.70; metalness = 0.03; clearcoat = 0.0; envMapIntensity = 0.16;
+      } else {
+        // Jet Matte Black PETG: 5 Top Pads (s=499), ReShape Gear-Circuit Logos (s=753, s=9), RESHAPE LAB Badge Pads (s=93,94)
+        r = 0.022; g = 0.025; b = 0.032; roughness = 0.64; metalness = 0.04; clearcoat = 0.0; envMapIntensity = 0.15;
+        polyOffset = true;
+      }
+    } else if (r < 0.26 && g < 0.26 && b < 0.26) {
+      // Matte Black Polymer: Tail Dipole Whip Antenna Body (s=762,766,767,770), Battery Packs (s=8, s=573), INMP441 Mics
+      r = 0.045; g = 0.050; b = 0.060; roughness = 0.64; metalness = 0.05; clearcoat = 0.0; envMapIntensity = 0.18;
+    } else if (Math.abs(r - 0.315) < 0.04 && Math.abs(g - 0.315) < 0.04) {
+      // Dark 3D-Printed PETG Parts: Mecanum Base Chassis (s=4), Mecanum Bottom Covers (s=5,12), Mecanum Wheel Hubs, Front Bezel (s=7), ESP32-S3 CAM body (s=511)
+      if (grp.startsWith('wheel_')) {
+        // Wheel Hub Plates: Deep Dark Charcoal Matte PETG (distinct against the jet-black rubber rollers)
+        r = 0.095; g = 0.105; b = 0.122; roughness = 0.62; metalness = 0.05; clearcoat = 0.0; envMapIntensity = 0.20;
+      } else {
+        // Mecanum Chassis & Front Bezel: Deep Anthracite / Charcoal Matte PETG (No more washed-out grey!)
+        r = 0.075; g = 0.082; b = 0.096; roughness = 0.64; metalness = 0.04; clearcoat = 0.0; envMapIntensity = 0.18;
+      }
+    } else if (r > 0.7 && g > 0.7 && b > 0.7) {
+      if (s === 514 || s === 515) {
+        // White 3D Letters "RESHAPE LAB" on the black side badge pad: Pure Crisp Matte White PETG
+        r = 0.96; g = 0.97; b = 0.99; roughness = 0.55; metalness = 0.02; clearcoat = 0.0; envMapIntensity = 0.20;
+        polyOffset = true;
+      } else if (grp === 'cube_pcb' || grp === 'base_pcb') {
+        // Metal USB-C Ports, IC Pins & Connectors on PCBs
+        r = 0.62; g = 0.65; b = 0.70; roughness = 0.28; metalness = 0.82; envMapIntensity = 1.0;
+      } else {
+        // White 3D-Printed PETG Shells (nắp thân trên s=1, nắp thân dưới s=0, đế lót s=3, gá cam s=512,513, nắp khóa đáy s=6):
+        // Matte PETG White (softened to 0.87 so bevels, holes & 12mm metal button have crisp shading and zero glare!)
+        r = 0.86; g = 0.88; b = 0.91; roughness = 0.62; metalness = 0.03; clearcoat = 0.0; envMapIntensity = 0.22;
+      }
+    }
+
+    const key = `${r.toFixed(3)}_${g.toFixed(3)}_${b.toFixed(3)}_${roughness}_${metalness}_${polyOffset}_${emissiveInt}`;
+    if (!matCache.has(key)) {
+      const mat = new THREE.MeshPhysicalMaterial({
+        color: new THREE.Color(r, g, b),
+        roughness,
+        metalness,
+        clearcoat,
+        clearcoatRoughness,
+        envMapIntensity,
+        emissive: new THREE.Color(emissiveR, emissiveG, emissiveB),
+        emissiveIntensity: emissiveInt,
+        side: THREE.DoubleSide,
+        polygonOffset: polyOffset,
+        polygonOffsetFactor: polyOffset ? -2 : 0,
+        polygonOffsetUnits: polyOffset ? -2 : 0
+      });
+      matCache.set(key, mat);
+      allShadedMaterials.push(mat);
+    }
+    return matCache.get(key);
+  }
+
+  // Subtle mechanical contour crease lines (opacity 0.12) so white PETG shells, flashing holes, and 12mm metal button have crisp edge definition!
+  const edgeMat = new THREE.LineBasicMaterial({
+    color: 0x1e2530,
+    transparent: true,
+    opacity: 0.12
+  });
+
+  // 3. Instantiate all mated CAD occurrences from v3 OGS_Scene
+  for (const ins of data.instances) {
+    if (ins.grp === 'cube_eyes' || ins.s === 92 || ins.s === 500) continue; // Skip static 3D white eye blocks
+    const baseGeom = geoms[ins.gIdx];
+    if (!baseGeom) continue;
+    const targetGrp = groups[ins.grp] || groups.cube_pcb;
+
+    const mat = getMaterial(ins.rgb, ins.grp, ins.s);
+    const mesh = new THREE.Mesh(baseGeom, mat);
+    mesh.matrixAutoUpdate = false;
+
+    const m = ins.m.slice();
+    if (ins.grp.startsWith('wheel_') && data.wheelPivots[ins.grp]) {
+      const piv = data.wheelPivots[ins.grp];
+      m[12] -= piv[0];
+      m[13] -= piv[1];
+      m[14] -= piv[2];
+    }
+
+    mesh.matrix.fromArray(m);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    targetGrp.add(mesh);
+
+    if (
+      ins.grp === 'base_chassis' || ins.grp === 'base_bottom' || ins.grp === 'dock_plate' ||
+      ins.grp === 'cube_bot' || ins.grp === 'cube_top' || ins.grp === 'cube_cam' ||
+      ins.grp === 'cube_pwr_btn' || ins.grp === 'cube_antenna'
+    ) {
+      const edges = new THREE.EdgesGeometry(baseGeom, 34);
+      const line = new THREE.LineSegments(edges, edgeMat);
+      line.matrixAutoUpdate = false;
+      line.matrix.copy(mesh.matrix);
+      targetGrp.add(line);
+      cadEdgeLines.push(line);
+    }
+  }
+
+  // 4. Add 60FPS Living AI Eyes Display Screen inside the front bezel window (`X = +55.25, Y = +59.5, Z = 0`)
+  const lcdScreen = new THREE.Mesh(
+    new THREE.PlaneGeometry(58.4, 44.2),
+    new THREE.MeshBasicMaterial({
+      map: eyeTexture,
+      side: THREE.DoubleSide,
+      polygonOffset: true,
+      polygonOffsetFactor: -2,
+      polygonOffsetUnits: -2
+    })
+  );
+  lcdScreen.position.set(55.25, 59.5, 0.0);
+  lcdScreen.rotation.y = Math.PI / 2;
+  groups.cube_display.add(lcdScreen);
+}
+buildExactMatedAssembly();
+
+// ============================================================================
+// 5. TELEMETRY WAVES, ACOUSTIC RINGS & SIM-TO-REAL 3D VECTOR ARROWS
+// ============================================================================
+const espNowRings = [];
+for (let i = 0; i < 3; i++) {
+  const rMesh = new THREE.Mesh(
+    new THREE.RingGeometry(38 + i * 16, 40 + i * 16, 48),
+    new THREE.MeshBasicMaterial({ color: 0x00f0ff, side: THREE.DoubleSide, transparent: true, opacity: 0.0 })
+  );
+  rMesh.rotation.x = -Math.PI / 2;
+  scene.add(rMesh);
+  espNowRings.push(rMesh);
+}
+
+// Acoustic Beamforming Waves into Left & Right INMP441 Ears (Z = ±65, Y = 58)
+const micWaveRings = [];
+[-1, 1].forEach(side => {
+  for (let i = 0; i < 3; i++) {
+    const mw = new THREE.Mesh(
+      new THREE.RingGeometry(10 + i * 11, 11.5 + i * 11, 32),
+      new THREE.MeshBasicMaterial({ color: 0xff9f0a, side: THREE.DoubleSide, transparent: true, opacity: 0.0 })
+    );
+    mw.position.set(0, 58, side * 62);
+    scene.add(mw);
+    micWaveRings.push({ mesh: mw, side, idx: i });
+  }
+});
+
+// ============================================================================
+// 6. DIRECTOR TIMELINES: MODE 1 (45s COMMERCIAL) & MODE 2 (30s SIM-TO-REAL MEDIA)
+// ============================================================================
+const TIMELINES = {
+  commercial: {
+    duration: 45.0,
+    acts: [
+      {
+        id: 0, start: 0, end: 7,
+        label: "1. Reveal",
+        badge: "ACT I • THE AWAKENING",
+        kicker: "RESHAPE LAB PRESENTS",
+        title: "XIAOZHI PRO",
+        subtitle: "100% Real Inventor CAD Architecture. Trí tuệ AI để bàn kết hợp chuyển động đa hướng.",
+        camStart: { pos: [245, 75, 40],   target: [0, 52, 0] },
+        camEnd:   { pos: [265, 135, 195], target: [0, 32, 0] },
+        explode: 0.0, simSplit: 0.0
+      },
+      {
+        id: 1, start: 7, end: 15,
+        label: "2. Thiết kế 3D",
+        badge: "ACT II • PRECISION CRAFTSMANSHIP",
+        kicker: "AUTODESK INVENTOR 2027 MASTER ASSEMBLY",
+        title: "Cơ khí Chính xác Từng Milimet.",
+        subtitle: "Logo ReShape (Bánh răng & Mạch) • Tem nổi 3D • Camera Turret • Nút nguồn Kim loại LED 12mm.",
+        camStart: { pos: [195, 185, -235], target: [0, 55, 0] },
+        camEnd:   { pos: [-240, 155, 220], target: [0, 45, 0] },
+        explode: 0.0, simSplit: 0.0
+      },
+      {
+        id: 2, start: 15, end: 26,
+        label: "3. Exploded PCB",
+        badge: "ACT III • EXPLODED HARDWARE ARCHITECTURE",
+        kicker: "4-LAYER CLOSED-LOOP ARCHITECTURE",
+        title: "Bên trong Cỗ máy: Custom Altium PCB.",
+        subtitle: "WeAct ESP32-S3 N16R8 (8MB Octal PSRAM) • Dual INMP441 I2S • PCM5100A DAC • 4x Động cơ Johnson.",
+        camStart: { pos: [340, 195, 310], target: [0, 35, 0] },
+        camEnd:   { pos: [290, 165, -320], target: [0, 28, 0] },
+        explode: 1.0, simSplit: 0.0
+      },
+      {
+        id: 3, start: 26, end: 35,
+        label: "4. ESP-NOW & Mecanum",
+        badge: "ACT IV • ESP-NOW DOCKING & TRUE MECANUM 360°",
+        kicker: "OMNIDIRECTIONAL KINEMATICS",
+        title: "4 Bánh Mecanum 36 Con Lăn 45°. Kết nối ESP-NOW.",
+        subtitle: "Trượt ngang Strafe • Đi chéo 45° • Xoay tâm 0° • Tự động về Deep-Sleep khi nhấc khỏi đế.",
+        camStart: { pos: [310, 145, 265], target: [0, -10, 0] },
+        camEnd:   { pos: [350, 220, 0],   target: [0, -5, 0] },
+        explode: 0.0, simSplit: 0.0
+      },
+      {
+        id: 4, start: 35, end: 40,
+        label: "5. Bento Specs",
+        badge: "ACT V • KEYNOTE BENTO SPECIFICATIONS",
+        kicker: "FPT POLYTECHNIC ĐÀ NẴNG • BỘ MÔN ĐIỆN – CƠ KHÍ",
+        title: "Hệ sinh thái Khép kín 3 Tầng.",
+        subtitle: "Inventor 3D CAD ⇄ Altium Designer PCB ⇄ ESP32-S3 Gemini Live AI Firmware.",
+        camStart: { pos: [295, 135, 275], target: [0, 15, -95] },
+        camEnd:   { pos: [275, 125, 255], target: [0, 15, -95] },
+        explode: 0.22, simSplit: 0.0
+      },
+      {
+        id: 5, start: 40, end: 45,
+        label: "6. Hero Finale",
+        badge: "ACT VI • THE HERO FINALE",
+        kicker: "ENGINEERED BY NGUYỄN TRUNG (CINQ) — RESHAPE LAB",
+        title: "XIAOZHI PRO.",
+        subtitle: "Desktop AI Companion. Built for Competition Excellence.",
+        camStart: { pos: [285, 195, 275], target: [0, 18, 0] },
+        camEnd:   { pos: [245, 175, 235], target: [0, 22, 0] },
+        explode: 0.0, simSplit: 0.0
+      }
+    ]
+  },
+
+  // ==========================================================================
+  // MODE 2: 30-SECOND SIM-TO-REAL & REACHY MINI MEDIA COMPETITION VIDEO
+  // ==========================================================================
+  media: {
+    duration: 30.0,
+    acts: [
+      {
+        id: 0, start: 0, end: 6,
+        label: "1. Reachy Companion (0-6s)",
+        badge: "MEDIA 01/05 • MEET YOUR OPEN-SOURCE AI COMPANION",
+        kicker: "INSPIRED BY REACHY MINI × RESHAPE LAB",
+        title: "Xin chào! Tớ là Xiaozhi Pro.",
+        subtitle: "Người bạn đồng hành AI mã nguồn mở giàu cảm xúc trên bàn làm việc của bạn.",
+        camStart: { pos: [215, 78, 55],  target: [0, 54, 0] },
+        camEnd:   { pos: [235, 95, -65], target: [0, 52, 0] },
+        explode: 0.0, simSplit: 0.0
+      },
+      {
+        id: 1, start: 6, end: 13,
+        label: "2. Sim-to-Real Split (6-13s)",
+        badge: "MEDIA 02/05 • SIM-TO-REAL DIGITAL TWIN PIPELINE",
+        kicker: "CAD SIMULATION ⇄ PHYSICAL REALITY",
+        title: "Từ Mô phỏng 3D Đến Phần cứng Thực tế.",
+        subtitle: "Đồng bộ 1:1 giữa Bản vẽ Inventor 401 chi tiết, Mạch Altium PCB và Động học Mecanum.",
+        camStart: { pos: [285, 175, 265], target: [0, 20, 0] },
+        camEnd:   { pos: [285, 165, -245], target: [0, 20, 0] },
+        explode: 0.0, simSplit: 1.0
+      },
+      {
+        id: 2, start: 13, end: 19,
+        label: "3. Voice AI & Dual Mic (13-19s)",
+        badge: "MEDIA 03/05 • DUAL-MIC BEAMFORMING & VOICE AI",
+        kicker: "ALWAYS-LISTENING VAD • IIR DC-BLOCKER • PCM5100A DAC",
+        title: "Lắng nghe Đa hướng. Phản hồi Tức thì.",
+        subtitle: "2 Micro I2S INMP441 định vị hướng giọng nói & đối thoại trực tiếp qua Gemini Live AI.",
+        camStart: { pos: [225, 125, 185], target: [0, 48, 0] },
+        camEnd:   { pos: [255, 145, 120], target: [0, 42, 0] },
+        explode: 0.35, simSplit: 0.0
+      },
+      {
+        id: 3, start: 19, end: 25,
+        label: "4. ESP-NOW & Unpair Sleep (19-25s)",
+        badge: "MEDIA 04/05 • ESP-NOW DOCK & AUTO DEEP-SLEEP",
+        kicker: "ZERO-LATENCY PAIRING • 4x18650 2S2P LITHIUM",
+        title: "Linh hoạt Tách Đế. Tự động Ngủ sâu Tiết kiệm Pin.",
+        subtitle: "Pair tự động qua ESP-NOW để di chuyển Mecanum 360° • Unpair về chế độ nghỉ thông minh.",
+        camStart: { pos: [330, 155, 240], target: [0, 15, 0] },
+        camEnd:   { pos: [295, 185, -210], target: [0, 15, 0] },
+        explode: 0.0, simSplit: 0.0
+      },
+      {
+        id: 4, start: 25, end: 30,
+        label: "5. Media Finale (25-30s)",
+        badge: "MEDIA 05/05 • FPT POLYTECHNIC ĐÀ NẴNG",
+        kicker: "NGUYỄN TRUNG (CINQ) • BỘ MÔN ĐIỆN – CƠ KHÍ",
+        title: "XIAOZHI PRO — RESHAPE LAB.",
+        subtitle: "Cơ khí Inventor • Phần cứng Altium • Trí tuệ Nhân tạo Nhúng ESP32-S3.",
+        camStart: { pos: [275, 185, 255], target: [0, 22, 0] },
+        camEnd:   { pos: [240, 165, 225], target: [0, 24, 0] },
+        explode: 0.0, simSplit: 0.0
+      }
+    ]
+  }
+};
+
+let currentMode = 'commercial'; // 'commercial' (45s) or 'media' (30s)
+let isPlaying = false;
+let playTime = 0;
+let manualExplode = false;
+let manualSimReal = false;
+let currentExplode = 0.0;
+let lastFrameTime = performance.now();
+let realVideoActive = false;
+const realVideoEl = document.getElementById('real-video');
+
+function rebuildSceneButtons() {
+  const container = document.getElementById('dynamic-scene-btns');
+  container.innerHTML = '';
+  TIMELINES[currentMode].acts.forEach((act, idx) => {
+    const b = document.createElement('button');
+    b.className = 'btn scene-btn';
+    b.dataset.act = idx;
+    b.textContent = act.label;
+    b.addEventListener('click', () => {
+      playTime = act.start + 0.05;
+      sound.lastCue = -1;
+      startPlayback(false);
+    });
+    container.appendChild(b);
+  });
+}
+rebuildSceneButtons();
+
+function easeInOutCubic(x) {
+  return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+}
+
+// ============================================================================
+// 7. SEAMLESS CONTINUOUS CAMERA SPLINE & RESHAPE LAB INTRO LOGO ENGINE
+// ============================================================================
+const RESHAPE_SPIDER_SVG_D = "M171.8,160.3L154.7,154.1L172.9,157.2ZM172.9,157.2L154.7,154.1L170.7,154.1ZM172.9,157.2L170.7,154.1L172.9,155.7ZM172.9,155.7L170.7,154.1L172.1,154.5ZM170.5,163.3L149.3,160.6L171.8,160.3ZM171.8,160.3L149.3,160.6L152.5,155.4ZM171.8,160.3L152.5,155.4L154.7,154.1ZM154.7,154.1L152.5,155.4L153.1,154.7ZM154.7,154.1L153.1,154.7L153.8,154.2ZM170.5,163.3L168.9,166.2L149.3,160.6ZM149.3,160.6L168.9,166.2L145.3,165.3ZM145.3,165.3L168.9,166.2L168.7,166.8ZM145.3,165.3L168.7,166.8L168.7,167.5ZM168.7,167.5L168.8,168.2L145.3,165.3ZM145.3,165.3L168.8,168.2L140.5,169.1ZM140.5,169.1L168.8,168.2L173.9,181.6ZM140.5,169.1L173.9,181.6L148.5,187.7ZM148.5,187.7L173.9,181.6L149.2,187.8ZM149.2,187.8L173.9,181.6L173.3,184.1ZM149.2,187.8L173.3,184.1L165.1,192.3ZM173.9,181.6L174,182.5L173.3,184.1ZM173.3,184.1L174,182.5L173.8,183.3ZM149.2,187.8L165.1,192.3L162.6,192.9ZM162.6,192.9L165.1,192.3L164.3,192.8ZM162.6,192.9L164.3,192.8L163.5,193ZM140.5,169.1L148.5,187.7L135.1,172.2ZM135.1,172.2L148.5,187.7L147.8,187.7ZM135.1,172.2L147.8,187.7L129.3,174.2ZM129.3,174.2L147.8,187.7L147.2,188ZM129.3,174.2L147.2,188L143.4,189.9ZM129.3,174.2L143.4,189.9L123.2,175.2ZM123.2,175.2L143.4,189.9L139.5,191.5ZM123.2,175.2L139.5,191.5L135.5,192.8ZM135.5,192.8L134.9,193.1L123.2,175.2ZM123.2,175.2L134.9,193.1L105.4,193.1ZM123.2,175.2L105.4,193.1L117.1,175.2ZM117.1,175.2L105.4,193.1L104.8,192.8ZM117.1,175.2L104.8,192.8L100.8,191.5ZM105.4,193.1L134.9,193.1L105.9,193.5ZM105.9,193.5L134.9,193.1L134.4,193.5ZM105.9,193.5L134.4,193.5L106.3,194.1ZM106.3,194.1L134.4,193.5L134,194.1ZM106.3,194.1L134,194.1L112.2,207.1ZM112.2,207.1L134,194.1L128.1,207.1ZM112.2,207.1L128.1,207.1L114.3,208.5ZM114.3,208.5L128.1,207.1L126,208.5ZM126,208.5L128.1,207.1L127.6,207.9ZM126,208.5L127.6,207.9L126.9,208.3ZM113.5,208.3L112.7,207.9L114.3,208.5ZM114.3,208.5L112.7,207.9L112.2,207.1ZM100.8,191.5L96.9,189.9L117.1,175.2ZM117.1,175.2L96.9,189.9L111,174.2ZM111,174.2L96.9,189.9L93.1,188ZM111,174.2L93.1,188L92.5,187.7ZM111,174.2L92.5,187.7L105.2,172.2ZM105.2,172.2L92.5,187.7L91.8,187.7ZM105.2,172.2L91.8,187.7L99.8,169.1ZM99.8,169.1L91.8,187.7L66.5,181.6ZM99.8,169.1L66.5,181.6L71.5,168.2ZM91.8,187.7L91.1,187.8L66.5,181.6ZM66.5,181.6L91.1,187.8L67,184.1ZM66.5,181.6L67,184.1L66.3,182.5ZM66.3,182.5L67,184.1L66.5,183.3ZM67,184.1L91.1,187.8L75.2,192.3ZM75.2,192.3L91.1,187.8L77.8,192.9ZM75.2,192.3L77.8,192.9L76,192.8ZM76,192.8L77.8,192.9L76.9,193ZM99.8,169.1L71.5,168.2L95.1,165.3ZM95.1,165.3L71.5,168.2L71.7,167.5ZM95.1,165.3L71.7,167.5L71.6,166.8ZM71.6,166.8L71.4,166.2L95.1,165.3ZM95.1,165.3L71.4,166.2L91,160.6ZM91,160.6L71.4,166.2L69.9,163.3ZM91,160.6L69.9,163.3L68.5,160.3ZM67.4,157.2L85.7,154.1L68.5,160.3ZM68.5,160.3L85.7,154.1L87.8,155.4ZM68.5,160.3L87.8,155.4L91,160.6ZM85.7,154.1L67.4,157.2L69.6,154.1ZM69.6,154.1L67.4,157.2L67.4,155.7ZM69.6,154.1L67.4,155.7L68.2,154.5ZM86.5,154.2L87.3,154.7L85.7,154.1ZM85.7,154.1L87.3,154.7L87.8,155.4ZM104,154.6L143.5,146.9L136,154.6ZM136,154.6L143.5,146.9L143.1,148ZM136,154.6L143.1,148L142.5,150.6ZM101.4,154.1L99.1,152.7L104,154.6ZM104,154.6L99.1,152.7L97.5,150.6ZM104,154.6L97.5,150.6L96.9,148ZM96.9,148L96.5,146.9L104,154.6ZM104,154.6L96.5,146.9L143.5,138.7ZM104,154.6L143.5,138.7L143.5,146.9ZM143.5,146.9L143.5,138.7L144.3,139.5ZM143.5,146.9L144.3,139.5L144.4,146.1ZM144.4,146.1L144.3,139.5L145.5,139.9ZM144.4,146.1L145.5,139.9L145.5,145.8ZM145.5,145.8L145.5,139.9L169,145.8ZM169,145.8L145.5,139.9L171.8,139.9ZM169,145.8L171.8,139.9L172.9,140.4ZM172.9,140.4L171.8,139.9L172.6,140.1ZM172.6,140.1L171.8,139.9L172.2,139.9ZM95.6,146.1L95.7,139.5L96.5,146.9ZM96.5,146.9L95.7,139.5L96.5,138.7ZM96.5,146.9L96.5,138.7L143.5,138.7ZM143.5,138.7L96.5,138.7L143.1,137.5ZM143.1,137.5L96.5,138.7L96.9,137.5ZM143.1,137.5L96.9,137.5L143.1,137.3ZM143.1,137.3L96.9,137.5L96.9,137.3ZM143.1,137.3L96.9,137.3L143.5,136.1ZM143.5,136.1L96.9,137.3L96.5,136.1ZM143.5,136.1L96.5,136.1L143.5,127.8ZM143.5,127.8L96.5,136.1L96.5,127.8ZM143.5,127.8L96.5,127.8L143.1,126.6ZM143.1,126.6L96.5,127.8L96.9,126.6ZM143.1,126.6L96.9,126.6L143.1,126.5ZM143.1,126.5L96.9,126.6L96.9,126.5ZM143.1,126.5L96.9,126.5L115.1,108.3ZM115.1,108.3L96.9,126.5L96.5,125.3ZM115.1,108.3L96.5,125.3L115,108.3ZM115,108.3L96.5,125.3L96.5,117ZM115,108.3L96.5,117L96.9,115.8ZM95.7,139.5L95.6,146.1L94.5,139.9ZM94.5,139.9L95.6,146.1L94.5,145.8ZM94.5,139.9L94.5,145.8L70.9,145.8ZM70.5,145.8L67.2,140.3L70.9,145.8ZM70.9,145.8L67.2,140.3L68.1,139.9ZM70.9,145.8L68.1,139.9L94.5,139.9ZM70.5,145.8L70.2,146L67.2,140.3ZM67.2,140.3L70.2,146L69.9,146.2ZM67.2,140.3L69.9,146.2L48.5,161ZM48.5,161L69.9,146.2L51.3,166.9ZM48.5,161L51.3,166.9L48.2,161.3ZM48.2,161.3L51.3,166.9L47.8,161.4ZM47.8,161.4L51.3,166.9L47.4,161.5ZM47.4,161.5L51.3,166.9L50.2,167.4ZM47.4,161.5L50.2,167.4L36,167.4ZM51.3,166.9L51,167.2L50.2,167.4ZM50.2,167.4L51,167.2L50.6,167.3ZM47.4,161.5L36,167.4L35.7,161.5ZM35.7,161.5L36,167.4L35.4,167.5ZM35.7,161.5L35.4,167.5L35.2,161.4ZM35.2,161.4L35.4,167.5L29.4,164.4ZM35.2,161.4L29.4,164.4L34.7,161.2ZM34.7,161.2L29.4,164.4L28.8,163.4ZM34.7,161.2L28.8,163.4L34.4,160.8ZM34.4,160.8L28.8,163.4L32.6,158.7ZM32.6,158.7L28.8,163.4L27.7,163ZM32.6,158.7L27.7,163L30.2,157.4ZM30.2,157.4L27.7,163L27.6,156.9ZM27.6,156.9L27.7,163L24.9,157.5ZM24.9,157.5L27.7,163L22.6,158.9ZM22.6,158.9L27.7,163L26.6,163.4ZM22.6,158.9L26.6,163.4L20.9,161ZM20.9,161L26.6,163.4L20,163.6ZM20,163.6L26.6,163.4L26,164.4ZM20,163.6L26,164.4L20.1,166.3ZM20.1,166.3L26,164.4L26.2,165.6ZM20.1,166.3L26.2,165.6L21.1,168.8ZM21.1,168.8L26.2,165.6L27.1,166.3ZM21.1,168.8L27.1,166.3L22.9,170.9ZM22.9,170.9L27.1,166.3L25.4,172.1ZM25.4,172.1L27.1,166.3L28.1,172.5ZM28.1,172.5L27.1,166.3L28.3,166.3ZM28.1,172.5L28.3,166.3L30.7,171.9ZM30.7,171.9L28.3,166.3L33,170.4ZM33,170.4L28.3,166.3L34.6,168.2ZM34.6,168.2L28.3,166.3L29.2,165.6ZM34.6,168.2L29.2,165.6L35,167.8ZM35,167.8L29.2,165.6L35.4,167.5ZM35.4,167.5L29.2,165.6L29.4,164.4ZM67.2,140.3L67.4,140.1L68.1,139.9ZM68.1,139.9L67.4,140.1L67.7,139.9ZM96.5,136.1L95.7,135.3L96.5,127.8ZM96.5,127.8L95.7,135.3L95.7,128.7ZM95.7,128.7L95.7,135.3L94.5,134.9ZM95.7,128.7L94.5,134.9L94.5,129ZM94.5,129L94.5,134.9L35.8,134.9ZM94.5,129L35.8,134.9L35.8,129ZM35.8,129L35.8,134.9L35.3,135ZM35.8,129L35.3,135L35.3,128.9ZM35.3,128.9L35.3,135L29.4,131.7ZM35.3,128.9L29.4,131.7L34.8,128.6ZM34.8,128.6L29.4,131.7L28.8,130.7ZM34.8,128.6L28.8,130.7L34.5,128.2ZM34.5,128.2L28.8,130.7L32.8,126.1ZM32.8,126.1L28.8,130.7L27.7,130.3ZM32.8,126.1L27.7,130.3L30.5,124.7ZM30.5,124.7L27.7,130.3L27.8,124.2ZM27.8,124.2L27.7,130.3L25.1,124.6ZM25.1,124.6L27.7,130.3L22.7,126ZM22.7,126L27.7,130.3L26.6,130.7ZM22.7,126L26.6,130.7L21,128.1ZM21,128.1L26.6,130.7L20,130.6ZM20,130.6L26.6,130.7L26,131.7ZM20,130.6L26,131.7L20,133.3ZM20,133.3L26,131.7L26.2,132.8ZM20,133.3L26.2,132.8L21,135.9ZM21,135.9L26.2,132.8L27.1,133.6ZM21,135.9L27.1,133.6L22.7,138ZM22.7,138L27.1,133.6L25.1,139.3ZM25.1,139.3L27.1,133.6L27.8,139.7ZM27.8,139.7L27.1,133.6L28.3,133.6ZM27.8,139.7L28.3,133.6L30.5,139.2ZM30.5,139.2L28.3,133.6L32.8,137.8ZM32.8,137.8L28.3,133.6L34.5,135.7ZM34.5,135.7L28.3,133.6L29.2,132.8ZM34.5,135.7L29.2,132.8L34.8,135.3ZM34.8,135.3L29.2,132.8L35.3,135ZM35.3,135L29.2,132.8L29.4,131.7ZM96.5,117L96.5,125.3L95.7,117.8ZM95.7,117.8L96.5,125.3L95.7,124.4ZM95.7,117.8L95.7,124.4L94.5,118.2ZM94.5,118.2L95.7,124.4L94.5,124.1ZM94.5,118.2L94.5,124.1L71,118.2ZM71,118.2L94.5,124.1L68.2,124.1ZM71,118.2L68.2,124.1L67.1,123.6ZM67.1,123.6L68.2,124.1L67.4,123.9ZM67.4,123.9L68.2,124.1L67.8,124ZM48.5,102.9L69.9,117.7L67.1,123.6ZM67.1,123.6L69.9,117.7L70.2,117.9ZM67.1,123.6L70.2,117.9L70.5,118.1ZM69.9,117.7L48.5,102.9L51.3,97ZM51.3,97L48.5,102.9L48.2,102.7ZM51.3,97L48.2,102.7L47.8,102.5ZM47.8,102.5L47.4,102.4L51.3,97ZM51.3,97L47.4,102.4L50.2,96.5ZM51.3,97L50.2,96.5L51,96.8ZM51,96.8L50.2,96.5L50.6,96.6ZM50.2,96.5L47.4,102.4L36,96.5ZM36,96.5L47.4,102.4L35.7,102.4ZM36,96.5L35.7,102.4L35.4,96.4ZM35.4,96.4L35.7,102.4L35.2,102.5ZM35.4,96.4L35.2,102.5L29.4,98.9ZM29.4,98.9L35.2,102.5L29.2,100.1ZM29.2,100.1L35.2,102.5L34.7,102.8ZM29.2,100.1L34.7,102.8L34.4,103.2ZM29.2,100.1L34.4,103.2L28.3,100.8ZM28.3,100.8L34.4,103.2L32.6,105.2ZM28.3,100.8L32.6,105.2L30.2,106.6ZM30.2,106.6L27.6,107L28.3,100.8ZM28.3,100.8L27.6,107L27.1,100.8ZM27.1,100.8L27.6,107L24.9,106.5ZM27.1,100.8L24.9,106.5L22.6,105.1ZM22.6,105.1L20.9,102.9L27.1,100.8ZM27.1,100.8L20.9,102.9L26.2,100.1ZM26.2,100.1L20.9,102.9L20,100.3ZM26.2,100.1L20,100.3L26,98.9ZM26,98.9L20,100.3L20.1,97.6ZM26,98.9L20.1,97.6L26.6,97.9ZM26.6,97.9L20.1,97.6L21.1,95.1ZM26.6,97.9L21.1,95.1L22.9,93.1ZM26.6,97.9L22.9,93.1L27.7,97.5ZM27.7,97.5L22.9,93.1L25.4,91.8ZM27.7,97.5L25.4,91.8L28.1,91.5ZM28.1,91.5L30.7,92.1L27.7,97.5ZM27.7,97.5L30.7,92.1L33,93.5ZM27.7,97.5L33,93.5L28.8,97.9ZM28.8,97.9L33,93.5L34.6,95.7ZM28.8,97.9L34.6,95.7L35,96.2ZM28.8,97.9L35,96.2L29.4,98.9ZM29.4,98.9L35,96.2L35.4,96.4ZM70.5,118.1L71,118.2L67.1,123.6ZM96.9,115.5L104.3,108.3L96.9,115.8ZM96.9,115.8L104.3,108.3L105.5,108ZM96.9,115.8L105.5,108L113.8,108ZM113.8,108L105.5,108L106.4,107.2ZM113.8,108L106.4,107.2L112.9,107.2ZM112.9,107.2L106.4,107.2L106.7,106ZM112.9,107.2L106.7,106L112.6,106ZM112.6,106L106.7,106L106.7,82.4ZM112.6,106L106.7,82.4L112.6,79.7ZM112.6,79.7L106.7,82.4L106.6,82ZM112.6,79.7L106.6,82L106.4,81.7ZM96.9,115.5L97.2,113.3L104.3,108.3ZM104.3,108.3L97.2,113.3L98.2,111.3ZM104.3,108.3L98.2,111.3L99.8,109.7ZM101.8,108.7L104,108.3L99.8,109.7ZM99.8,109.7L104,108.3L104.3,108.3ZM106.4,81.7L106.2,81.3L112.6,79.7ZM112.6,79.7L106.2,81.3L112.1,78.6ZM112.6,79.7L112.1,78.6L112.5,79.3ZM112.5,79.3L112.1,78.6L112.4,78.9ZM112.1,78.6L106.2,81.3L91.4,60ZM91.4,60L106.2,81.3L85.5,62.8ZM91.4,60L85.5,62.8L85.1,61.7ZM85.1,61.7L85.5,62.8L85.1,62.1ZM85.1,62.1L85.5,62.8L85.3,62.4ZM85.1,47.4L90.9,58.9L85.1,61.7ZM85.1,61.7L90.9,58.9L91,59.3ZM85.1,61.7L91,59.3L91.2,59.7ZM90.9,58.9L85.1,47.4L90.9,47.2ZM90.9,47.2L85.1,47.4L85,46.9ZM90.9,47.2L85,46.9L91,46.7ZM91,46.7L85,46.9L84.7,46.5ZM91,46.7L84.7,46.5L91.3,46.2ZM91.3,46.2L84.7,46.5L84.2,46.1ZM91.3,46.2L84.2,46.1L88.3,40.8ZM88.3,40.8L84.2,46.1L87.2,40.8ZM87.2,40.8L84.2,46.1L82.1,44.5ZM87.2,40.8L82.1,44.5L80.6,42.2ZM87.2,40.8L80.6,42.2L86.3,40ZM86.3,40L80.6,42.2L80,39.5ZM86.3,40L80,39.5L86.1,38.9ZM86.1,38.9L80,39.5L80.3,36.8ZM86.1,38.9L80.3,36.8L86.6,37.9ZM86.6,37.9L80.3,36.8L81.6,34.4ZM86.6,37.9L81.6,34.4L87.7,37.5ZM87.7,37.5L81.6,34.4L83.6,32.6ZM87.7,37.5L83.6,32.6L86.1,31.6ZM86.1,31.6L88.9,31.5L87.7,37.5ZM87.7,37.5L88.9,31.5L91.4,32.3ZM87.7,37.5L91.4,32.3L93.6,34ZM87.7,37.5L93.6,34L88.8,37.9ZM88.8,37.9L93.6,34L95,36.4ZM88.8,37.9L95,36.4L89.4,38.9ZM89.4,38.9L95,36.4L95.5,39ZM89.4,38.9L95.5,39L89.2,40ZM89.2,40L95.5,39L95.1,41.7ZM89.2,40L95.1,41.7L88.3,40.8ZM88.3,40.8L95.1,41.7L93.7,44.1ZM88.3,40.8L93.7,44.1L91.7,45.9ZM91.7,45.9L91.3,46.2L88.3,40.8ZM91.2,59.7L91.4,60L85.1,61.7ZM113.8,108L115,108.3L96.9,115.8ZM116.3,108L124.6,108L115.1,108.3ZM115.1,108.3L124.6,108L125.8,108.3ZM115.1,108.3L125.8,108.3L143.1,126.5ZM143.1,126.5L125.8,108.3L143.5,125.3ZM143.5,125.3L125.8,108.3L143.4,117.3ZM143.5,125.3L143.4,117.3L144,117.9ZM124.6,108L116.3,108L123.8,107.2ZM123.8,107.2L116.3,108L117.2,107.2ZM123.8,107.2L117.2,107.2L123.4,106ZM123.4,106L117.2,107.2L117.5,106ZM123.4,106L117.5,106L123.4,47.3ZM123.4,47.3L117.5,106L117.5,47.3ZM123.4,47.3L117.5,47.3L123.5,46.8ZM123.5,46.8L117.5,47.3L117.4,46.8ZM123.5,46.8L117.4,46.8L123.8,46.3ZM123.8,46.3L117.4,46.8L117.1,46.3ZM123.8,46.3L117.1,46.3L119.9,40.8ZM119.9,40.8L117.1,46.3L116.7,46ZM119.9,40.8L116.7,46L114.6,44.3ZM114.6,44.3L113.2,42L119.9,40.8ZM119.9,40.8L113.2,42L119,40ZM119,40L113.2,42L112.7,39.3ZM119,40L112.7,39.3L118.8,38.9ZM118.8,38.9L112.7,39.3L113.1,36.6ZM118.8,38.9L113.1,36.6L119.4,37.9ZM119.4,37.9L113.1,36.6L114.5,34.2ZM119.4,37.9L114.5,34.2L120.5,37.5ZM120.5,37.5L114.5,34.2L116.6,32.5ZM120.5,37.5L116.6,32.5L119.1,31.5ZM119.1,31.5L121.8,31.5L120.5,37.5ZM120.5,37.5L121.8,31.5L124.4,32.5ZM120.5,37.5L124.4,32.5L126.5,34.2ZM120.5,37.5L126.5,34.2L121.6,37.9ZM121.6,37.9L126.5,34.2L127.8,36.6ZM121.6,37.9L127.8,36.6L122.2,38.9ZM122.2,38.9L127.8,36.6L128.3,39.3ZM122.2,38.9L128.3,39.3L122,40ZM122,40L128.3,39.3L127.7,42ZM122,40L127.7,42L121.1,40.8ZM121.1,40.8L127.7,42L126.3,44.3ZM121.1,40.8L126.3,44.3L124.2,46ZM124.2,46L123.8,46.3L121.1,40.8ZM121.1,40.8L123.8,46.3L119.9,40.8ZM125.8,108.3L126,108.3L143.4,117.3ZM143.4,117.3L126,108.3L143.1,116.5ZM143.1,116.5L126,108.3L127.2,108ZM143.1,116.5L127.2,108L143.1,115.5ZM143.1,115.5L127.2,108L136.5,108.4ZM143.1,115.5L136.5,108.4L142.6,112.9ZM142.6,112.9L136.5,108.4L141.2,110.6ZM141.2,110.6L136.5,108.4L139.1,109ZM136.5,108.4L127.2,108L135.4,108ZM135.4,108L127.2,108L128.1,107.2ZM135.4,108L128.1,107.2L134.6,107.1ZM134.6,107.1L128.1,107.2L134.3,106ZM134.3,106L128.1,107.2L128.4,106ZM134.3,106L128.4,106L134.3,82.4ZM134.3,82.4L128.4,106L128.4,79.7ZM134.3,82.4L128.4,79.7L134.3,82ZM134.3,82L128.4,79.7L134.5,81.7ZM134.5,81.7L128.4,79.7L134.8,81.3ZM134.8,81.3L128.4,79.7L128.9,78.6ZM134.8,81.3L128.9,78.6L149.5,60ZM128.4,79.7L128.4,79.3L128.9,78.6ZM128.9,78.6L128.4,79.3L128.6,78.9ZM149.8,59.7L155.9,61.7L149.5,60ZM149.5,60L155.9,61.7L155.4,62.8ZM149.5,60L155.4,62.8L134.8,81.3ZM149.8,59.7L150,59.3L155.9,61.7ZM155.9,61.7L150,59.3L150,58.9ZM155.9,61.7L150,58.9L155.9,47.4ZM155.9,47.4L150,58.9L150,47.2ZM155.9,47.4L150,47.2L156,46.9ZM156,46.9L150,47.2L149.9,46.7ZM156,46.9L149.9,46.7L156.3,46.5ZM156.3,46.5L149.9,46.7L149.7,46.2ZM156.3,46.5L149.7,46.2L156.7,46.1ZM156.7,46.1L149.7,46.2L152.6,40.8ZM156.7,46.1L152.6,40.8L153.8,40.8ZM149.7,46.2L149.3,45.9L152.6,40.8ZM152.6,40.8L149.3,45.9L147.2,44.1ZM152.6,40.8L147.2,44.1L145.9,41.7ZM152.6,40.8L145.9,41.7L151.8,40ZM151.8,40L145.9,41.7L145.5,39ZM151.8,40L145.5,39L151.5,38.9ZM151.5,38.9L145.5,39L146,36.4ZM151.5,38.9L146,36.4L152.1,37.9ZM152.1,37.9L146,36.4L147.4,34ZM152.1,37.9L147.4,34L153.2,37.5ZM153.2,37.5L147.4,34L149.5,32.3ZM153.2,37.5L149.5,32.3L152.1,31.5ZM152.1,31.5L154.8,31.6L153.2,37.5ZM153.2,37.5L154.8,31.6L157.4,32.6ZM153.2,37.5L157.4,32.6L159.4,34.4ZM153.2,37.5L159.4,34.4L154.3,37.9ZM154.3,37.9L159.4,34.4L160.6,36.8ZM154.3,37.9L160.6,36.8L154.9,38.9ZM154.9,38.9L160.6,36.8L161,39.5ZM154.9,38.9L161,39.5L154.7,40ZM154.7,40L161,39.5L160.4,42.2ZM154.7,40L160.4,42.2L153.8,40.8ZM153.8,40.8L160.4,42.2L158.9,44.5ZM153.8,40.8L158.9,44.5L156.7,46.1ZM155.9,61.7L155.8,62.1L155.4,62.8ZM155.4,62.8L155.8,62.1L155.7,62.4ZM143.5,125.3L144,117.9L144.3,124.4ZM144.3,124.4L144,117.9L144.8,118.2ZM144.3,124.4L144.8,118.2L145.5,124.1ZM145.5,124.1L144.8,118.2L169,118.2ZM145.5,124.1L169,118.2L171.8,124.1ZM171.8,124.1L169,118.2L172.9,123.6ZM171.8,124.1L172.9,123.6L172.6,123.9ZM169,118.2L169.5,118.1L172.9,123.6ZM172.9,123.6L169.5,118.1L169.8,117.9ZM172.9,123.6L169.8,117.9L170.1,117.7ZM172.9,123.6L170.1,117.7L191.5,102.9ZM191.5,102.9L170.1,117.7L188.7,97ZM191.5,102.9L188.7,97L191.8,102.7ZM191.8,102.7L188.7,97L192.2,102.5ZM192.2,102.5L188.7,97L192.6,102.4ZM192.6,102.4L188.7,97L189.8,96.5ZM192.6,102.4L189.8,96.5L204,96.5ZM188.7,97L189,96.8L189.8,96.5ZM189.8,96.5L189,96.8L189.4,96.6ZM192.6,102.4L204,96.5L204.3,102.4ZM204.3,102.4L204,96.5L204.6,96.4ZM204.3,102.4L204.6,96.4L204.8,102.5ZM204.8,102.5L204.6,96.4L210.6,98.9ZM204.8,102.5L210.6,98.9L210.8,100.1ZM204.6,96.4L205,96.2L210.6,98.9ZM210.6,98.9L205,96.2L211.2,97.9ZM211.2,97.9L205,96.2L205.4,95.7ZM211.2,97.9L205.4,95.7L207,93.5ZM211.2,97.9L207,93.5L212.3,97.5ZM212.3,97.5L207,93.5L209.3,92.1ZM212.3,97.5L209.3,92.1L211.9,91.5ZM211.9,91.5L214.6,91.8L212.3,97.5ZM212.3,97.5L214.6,91.8L217.1,93.1ZM212.3,97.5L217.1,93.1L213.4,97.9ZM213.4,97.9L217.1,93.1L218.9,95.1ZM213.4,97.9L218.9,95.1L219.9,97.6ZM213.4,97.9L219.9,97.6L214,98.9ZM214,98.9L219.9,97.6L220,100.3ZM214,98.9L220,100.3L213.8,100.1ZM213.8,100.1L220,100.3L219.1,102.9ZM213.8,100.1L219.1,102.9L212.9,100.8ZM212.9,100.8L219.1,102.9L217.4,105.1ZM212.9,100.8L217.4,105.1L215.1,106.5ZM215.1,106.5L212.4,107L212.9,100.8ZM212.9,100.8L212.4,107L211.7,100.8ZM211.7,100.8L212.4,107L209.8,106.6ZM211.7,100.8L209.8,106.6L207.4,105.2ZM207.4,105.2L205.6,103.2L211.7,100.8ZM211.7,100.8L205.6,103.2L210.8,100.1ZM210.8,100.1L205.6,103.2L205.3,102.8ZM210.8,100.1L205.3,102.8L204.8,102.5ZM172.6,123.9L172.2,124L171.8,124.1ZM143.5,127.8L144.3,128.7L143.5,136.1ZM143.5,136.1L144.3,128.7L144.3,135.3ZM144.3,135.3L144.3,128.7L145.5,129ZM144.3,135.3L145.5,129L145.5,134.9ZM145.5,134.9L145.5,129L204.2,134.9ZM204.2,134.9L145.5,129L204.2,129ZM204.2,134.9L204.2,129L204.7,135ZM204.7,135L204.2,129L204.7,128.9ZM204.7,135L204.7,128.9L210.6,131.7ZM210.6,131.7L204.7,128.9L205.2,128.6ZM210.6,131.7L205.2,128.6L211.2,130.7ZM211.2,130.7L205.2,128.6L205.5,128.2ZM211.2,130.7L205.5,128.2L207.2,126.1ZM211.2,130.7L207.2,126.1L212.3,130.3ZM212.3,130.3L207.2,126.1L209.5,124.7ZM212.3,130.3L209.5,124.7L212.2,124.2ZM212.2,124.2L214.9,124.6L212.3,130.3ZM212.3,130.3L214.9,124.6L217.3,126ZM212.3,130.3L217.3,126L213.4,130.7ZM213.4,130.7L217.3,126L219,128.1ZM213.4,130.7L219,128.1L220,130.6ZM213.4,130.7L220,130.6L214,131.7ZM214,131.7L220,130.6L220,133.3ZM214,131.7L220,133.3L213.8,132.8ZM213.8,132.8L220,133.3L219,135.9ZM213.8,132.8L219,135.9L212.9,133.6ZM212.9,133.6L219,135.9L217.3,138ZM212.9,133.6L217.3,138L214.9,139.3ZM214.9,139.3L212.2,139.7L212.9,133.6ZM212.9,133.6L212.2,139.7L211.7,133.6ZM211.7,133.6L212.2,139.7L209.5,139.2ZM211.7,133.6L209.5,139.2L207.2,137.8ZM207.2,137.8L205.5,135.7L211.7,133.6ZM211.7,133.6L205.5,135.7L210.8,132.8ZM210.8,132.8L205.5,135.7L205.2,135.3ZM210.8,132.8L205.2,135.3L204.7,135ZM191.5,161L170.1,146.3L172.9,140.4ZM172.9,140.4L170.1,146.3L169.8,146ZM172.9,140.4L169.8,146L169.5,145.8ZM170.1,146.3L191.5,161L188.7,166.9ZM188.7,166.9L191.5,161L191.8,161.3ZM188.7,166.9L191.8,161.3L192.2,161.4ZM192.2,161.4L192.6,161.5L188.7,166.9ZM188.7,166.9L192.6,161.5L189.8,167.4ZM188.7,166.9L189.8,167.4L189,167.2ZM189,167.2L189.8,167.4L189.4,167.3ZM189.8,167.4L192.6,161.5L204,167.4ZM204,167.4L192.6,161.5L204.3,161.5ZM204,167.4L204.3,161.5L204.6,167.5ZM204.6,167.5L204.3,161.5L204.8,161.4ZM204.6,167.5L204.8,161.4L210.6,164.4ZM210.6,164.4L204.8,161.4L205.3,161.2ZM210.6,164.4L205.3,161.2L211.2,163.4ZM211.2,163.4L205.3,161.2L205.6,160.8ZM211.2,163.4L205.6,160.8L207.4,158.7ZM211.2,163.4L207.4,158.7L212.3,163ZM212.3,163L207.4,158.7L209.8,157.4ZM212.3,163L209.8,157.4L212.4,156.9ZM212.4,156.9L215.1,157.5L212.3,163ZM212.3,163L215.1,157.5L217.4,158.9ZM212.3,163L217.4,158.9L213.4,163.4ZM213.4,163.4L217.4,158.9L219.1,161ZM213.4,163.4L219.1,161L220,163.6ZM213.4,163.4L220,163.6L214,164.4ZM214,164.4L220,163.6L219.9,166.3ZM214,164.4L219.9,166.3L213.8,165.6ZM213.8,165.6L219.9,166.3L218.9,168.8ZM213.8,165.6L218.9,168.8L212.9,166.3ZM212.9,166.3L218.9,168.8L217.1,170.9ZM212.9,166.3L217.1,170.9L214.6,172.1ZM214.6,172.1L211.9,172.5L212.9,166.3ZM212.9,166.3L211.9,172.5L211.7,166.3ZM211.7,166.3L211.9,172.5L209.3,171.9ZM211.7,166.3L209.3,171.9L207,170.4ZM207,170.4L205.4,168.2L211.7,166.3ZM211.7,166.3L205.4,168.2L210.8,165.6ZM210.8,165.6L205.4,168.2L205,167.8ZM210.8,165.6L205,167.8L204.6,167.5ZM169.5,145.8L169,145.8L172.9,140.4ZM142.5,150.6L140.9,152.7L136,154.6ZM136,154.6L140.9,152.7L138.6,154.1ZM210.6,131.7L210.8,132.8L204.7,135ZM210.6,164.4L210.8,165.6L204.6,167.5Z";
+const reshapeSpiderPath2D = new Path2D(RESHAPE_SPIDER_SVG_D);
+
+function quinticSmooth(x) {
+  const u = Math.max(0, Math.min(1, x));
+  return u * u * u * (u * (u * 6 - 15) + 10);
+}
+
+// Continuous Spherical Orbit Keyframes (t, radius, azimuthDeg, elevationDeg, targetX, targetY, targetZ, explode)
+// Azimuth 0° = +X (Directly facing front TFT screen of Xiaozhi Pro!), +90° = +Z (Right side), 180° = -X (Rear Tail Antenna), 270° = -Z (Left side)
+const SEAMLESS_SPLINES = {
+  commercial: [
+    { t: 0.0,  r: 360, az: 0,   el: 5,  tx: 0,   ty: 58, tz: 0,   exp: 0.00 }, // ReShape Logo fly-in & zoom-through
+    { t: 2.8,  r: 255, az: 0,   el: 6,  tx: 0,   ty: 57, tz: 0,   exp: 0.00 }, // Logo dissolves -> Eyes ignite close-up
+    { t: 7.0,  r: 280, az: 36,  el: 16, tx: 0,   ty: 48, tz: 0,   exp: 0.00 }, // Smooth glide to 3/4 front-right hero
+    { t: 10.6, r: 265, az: 112, el: 36, tx: 0,   ty: 68, tz: 0,   exp: 0.00 }, // Glide up over Top 5 Black Pads & Small Spider Logo
+    { t: 14.8, r: 285, az: 202, el: 21, tx: -12, ty: 56, tz: 0,   exp: 0.00 }, // Orbit around Rear Tail Antenna, 12mm LED Button & Flashing Holes
+    { t: 18.2, r: 515, az: 315, el: 21, tx: 0,   ty: 8,  tz: 0,   exp: 1.00 }, // Smoothly expand into 4-Layer NVIDIA Exploded View
+    { t: 23.6, r: 505, az: 392, el: 19, tx: 0,   ty: 8,  tz: 0,   exp: 1.00 }, // Orbit across exploded Custom Altium PCB & 36-Roller Mecanum
+    { t: 26.4, r: 365, az: 382, el: 18, tx: 0,   ty: 8,  tz: 0,   exp: 0.00 }, // Seamless re-assembly into solid robot
+    { t: 31.2, r: 375, az: 332, el: 23, tx: 0,   ty: -4, tz: 0,   exp: 0.00 }, // Low dynamic Mecanum 360° omnidirectional strafe & spin
+    { t: 34.8, r: 355, az: 390, el: 17, tx: 0,   ty: 18, tz: 0,   exp: 0.00 }, // Vertical Unpair Docking Lift & Auto-Sleep demo
+    { t: 39.8, r: 395, az: 400, el: 18, tx: 0,   ty: 22, tz: -85, exp: 0.14 }, // Off-center framing for clean Keynote Bento Specs
+    { t: 45.0, r: 315, az: 388, el: 16, tx: 0,   ty: 26, tz: 0,   exp: 0.00 }  // Grand Finale Hero Lockup with smiling AI eyes
+  ],
+  media: [
+    { t: 0.0,  r: 340, az: 0,   el: 5,  tx: 0,   ty: 57, tz: 0,   exp: 0.00 }, // ReShape Logo fly-in & zoom-through
+    { t: 2.4,  r: 235, az: -8,  el: 7,  tx: 0,   ty: 56, tz: 0,   exp: 0.00 }, // Reachy Mini expressive greeting close-up
+    { t: 6.0,  r: 265, az: 24,  el: 14, tx: 0,   ty: 46, tz: 0,   exp: 0.00 }, // Playful head tilt & companion wave
+    { t: 9.5,  r: 365, az: 42,  el: 22, tx: 0,   ty: 18, tz: 0,   exp: 0.00 }, // Sim-to-Real Digital Twin Split-Screen Wipe (Right side)
+    { t: 13.0, r: 355, az: -36, el: 20, tx: 0,   ty: 20, tz: 0,   exp: 0.00 }, // Sim-to-Real Split-Screen Wipe (Left side)
+    { t: 16.2, r: 335, az: 32,  el: 19, tx: 0,   ty: 42, tz: 0,   exp: 0.42 }, // Semi-exploded Dual INMP441 Beamforming & Voice AI
+    { t: 19.2, r: 350, az: 25,  el: 18, tx: 0,   ty: 16, tz: 0,   exp: 0.00 }, // Re-assembled for Mecanum Strafe & Unpair Lift
+    { t: 25.0, r: 360, az: -28, el: 21, tx: 0,   ty: 14, tz: 0,   exp: 0.00 }, // Unpair Auto-Sleep Lift completion
+    { t: 30.0, r: 305, az: 28,  el: 16, tx: 0,   ty: 26, tz: 0,   exp: 0.00 }  // Media Competition Hero Finale
+  ]
+};
+
+function evaluateSeamlessSpline(mode, t) {
+  const kf = SEAMLESS_SPLINES[mode] || SEAMLESS_SPLINES.commercial;
+  if (t <= kf[0].t) return kf[0];
+  if (t >= kf[kf.length - 1].t) return kf[kf.length - 1];
+  for (let i = 0; i < kf.length - 1; i++) {
+    const a = kf[i], b = kf[i + 1];
+    if (t >= a.t && t <= b.t) {
+      const u = quinticSmooth((t - a.t) / (b.t - a.t));
+      return {
+        r:   THREE.MathUtils.lerp(a.r,   b.r,   u),
+        az:  THREE.MathUtils.lerp(a.az,  b.az,  u),
+        el:  THREE.MathUtils.lerp(a.el,  b.el,  u),
+        tx:  THREE.MathUtils.lerp(a.tx,  b.tx,  u),
+        ty:  THREE.MathUtils.lerp(a.ty,  b.ty,  u),
+        tz:  THREE.MathUtils.lerp(a.tz,  b.tz,  u),
+        exp: THREE.MathUtils.lerp(a.exp, b.exp, u)
+      };
+    }
+  }
+  return kf[kf.length - 1];
+}
+
+function drawReShapeIntroOverlay(ctx, w, h, tSec, introDur) {
+  if (tSec >= introDur) return;
+  const p = tSec / introDur; // 0.0 -> 1.0
+
+  // Phase 1 (0.00..0.32): Logo flies down from top to center
+  const pFly = Math.min(1, p / 0.32);
+  const flyEase = 1 - Math.pow(1 - pFly, 3);
+
+  // Phase 2 (0.24..0.64): "RESHAPE LAB" text reveals below logo
+  const pText = Math.max(0, Math.min(1, (p - 0.24) / 0.28));
+  const textEase = 1 - Math.pow(1 - pText, 3);
+
+  // Phase 3 (0.64..1.00): Center logo zooms out dramatically (1x -> 16x) and dissolves into the 3D robot reveal!
+  const pZoom = Math.max(0, Math.min(1, (p - 0.64) / 0.36));
+  const zoomCurve = Math.pow(pZoom, 2.6);
+  const zoomScale = 1.0 + zoomCurve * 15.5;
+  const contentAlpha = Math.min(1, p / 0.10) * Math.pow(1 - pZoom, 1.45);
+  const bgAlpha = Math.pow(1 - Math.max(0, (p - 0.56) / 0.44), 1.6);
+
+  ctx.save();
+
+  // 1. Deep Cinema Backdrop that smoothly dissolves as the logo zooms through the camera
+  if (bgAlpha > 0.005) {
+    ctx.fillStyle = `rgba(4, 6, 11, ${bgAlpha.toFixed(3)})`;
+    ctx.fillRect(0, 0, w, h);
+
+    // Subtle volumetric cyan/blue studio spotlight behind the emblem
+    const rad = Math.max(w, h) * 0.42;
+    const rg = ctx.createRadialGradient(w * 0.5, h * 0.45, 10, w * 0.5, h * 0.45, rad);
+    rg.addColorStop(0, `rgba(0, 240, 255, ${(0.18 * bgAlpha).toFixed(3)})`);
+    rg.addColorStop(0.45, `rgba(41, 151, 255, ${(0.07 * bgAlpha).toFixed(3)})`);
+    rg.addColorStop(1, 'rgba(4, 6, 11, 0)');
+    ctx.fillStyle = rg;
+    ctx.fillRect(0, 0, w, h);
+  }
+
+  // 2. Transform to screen center with fly-down offset & dramatic zoom-through expansion
+  const baseScale = Math.min(w, h) / 1080;
+  const flyYOffset = (1 - flyEase) * (-h * 0.34);
+  const cx = w * 0.5;
+  const cy = h * 0.43 + flyYOffset;
+
+  ctx.translate(cx, cy);
+  ctx.scale(zoomScale * baseScale, zoomScale * baseScale * (0.78 + 0.22 * flyEase));
+  ctx.globalAlpha = Math.max(0, Math.min(1, contentAlpha));
+
+  // Glowing outer ring around the ReShape Spider-Circuit Emblem
+  ctx.save();
+  ctx.strokeStyle = 'rgba(0, 240, 255, 0.35)';
+  ctx.lineWidth = 2.0;
+  ctx.shadowColor = '#00f0ff';
+  ctx.shadowBlur = 28;
+  ctx.beginPath();
+  ctx.arc(0, 0, 124, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.restore();
+
+  // Draw Cinq's 100% Authentic ReShape Spider-Circuit CAD Logo (centered at 120,120 in 240x240 coords)
+  ctx.save();
+  ctx.translate(-120, -120);
+  const lg = ctx.createLinearGradient(20, 20, 220, 220);
+  lg.addColorStop(0, '#ffffff');
+  lg.addColorStop(0.5, '#e2e8f0');
+  lg.addColorStop(1, '#38bdf8');
+  ctx.fillStyle = lg;
+  ctx.strokeStyle = lg;
+  ctx.lineWidth = 0.85;
+  ctx.shadowColor = '#00f0ff';
+  ctx.shadowBlur = 24;
+  ctx.fill(reshapeSpiderPath2D);
+  ctx.stroke(reshapeSpiderPath2D);
+  ctx.restore();
+
+  // 3. Reveal "RESHAPE LAB" & Subtitle beneath the emblem during Phase 2
+  if (pText > 0.01) {
+    const textY = 175 + (1 - textEase) * 24;
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, Math.min(1, contentAlpha * textEase));
+    ctx.textAlign = 'center';
+
+    // Glowing cyan divider line
+    const lineW = 180 * textEase;
+    ctx.strokeStyle = '#00f0ff';
+    ctx.shadowColor = '#00f0ff';
+    ctx.shadowBlur = 14;
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.moveTo(-lineW, textY - 46);
+    ctx.lineTo(lineW, textY - 46);
+    ctx.stroke();
+
+    // Main Title: RESHAPE LAB
+    ctx.fillStyle = '#ffffff';
+    ctx.shadowColor = 'rgba(0, 240, 255, 0.65)';
+    ctx.shadowBlur = 22;
+    ctx.font = '900 54px -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif';
+    if ('letterSpacing' in ctx) ctx.letterSpacing = `${(14 - 4 * textEase).toFixed(1)}px`;
+    ctx.fillText('RESHAPE LAB', 0, textY);
+
+    // Subtitle: FPT POLYTECHNIC ĐÀ NẴNG
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#38bdf8';
+    ctx.font = '700 15px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+    if ('letterSpacing' in ctx) ctx.letterSpacing = '5px';
+    ctx.fillText('FPT POLYTECHNIC ĐÀ NẴNG • ROBOTICS & AI ENGINEERING', 0, textY + 34);
+    ctx.restore();
+  }
+
+  ctx.restore();
+}
+
+function project3DTo2D(vec3, w, h) {
+  const v = vec3.clone().project(camera);
+  return {
+    x: (v.x * 0.5 + 0.5) * w,
+    y: (-(v.y * 0.5) + 0.5) * h,
+    visible: v.z < 1.0
+  };
+}
+
+function draw3DCallout(ctx, worldPos, offX, offY, tag, title, detail, color, w, h, alpha = 1.0) {
+  const pt = project3DTo2D(worldPos, w, h);
+  if (!pt.visible || alpha <= 0.01) return;
+  const bx = pt.x + offX;
+  const by = pt.y + offY;
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1.8;
+  ctx.beginPath();
+  ctx.arc(pt.x, pt.y, 4.0, 0, Math.PI * 2);
+  ctx.fillStyle = color;
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(pt.x, pt.y);
+  ctx.lineTo(pt.x + offX * 0.45, by);
+  ctx.lineTo(bx, by);
+  ctx.stroke();
+
+  const cw = 305, ch = 66;
+  const cardX = offX >= 0 ? bx : bx - cw;
+  const cardY = by - ch / 2;
+  ctx.fillStyle = 'rgba(8, 12, 20, 0.84)';
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  ctx.roundRect(cardX, cardY, cw, ch, 10);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = color;
+  ctx.font = 'bold 11px sans-serif';
+  ctx.fillText(tag, cardX + 14, cardY + 19);
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 14px sans-serif';
+  ctx.fillText(title, cardX + 14, cardY + 38);
+  ctx.fillStyle = '#9ca3af';
+  ctx.font = '12px sans-serif';
+  ctx.fillText(detail, cardX + 14, cardY + 55);
+  ctx.restore();
+}
+
+function drawSimToRealOverlay(ctx, w, h, splitX, tSec) {
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(0, 0, splitX, h);
+  ctx.clip();
+
+  ctx.fillStyle = 'rgba(0, 240, 255, 0.05)';
+  ctx.fillRect(0, 0, splitX, h);
+  ctx.strokeStyle = 'rgba(0, 240, 255, 0.12)';
+  ctx.lineWidth = 1;
+  for (let x = 0; x < splitX; x += 48) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+  }
+  for (let y = 0; y < h; y += 48) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(splitX, y); ctx.stroke();
+  }
+
+  const pivs = window.XIAOZHI_IAM_DATA ? window.XIAOZHI_IAM_DATA.wheelPivots : {};
+  Object.entries(pivs).forEach(([wName, p], idx) => {
+    const pt = project3DTo2D(new THREE.Vector3(p[0], p[1], p[2]), w, h);
+    if (!pt.visible) return;
+    ctx.strokeStyle = '#76b900';
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.arc(pt.x, pt.y, 18, 0, Math.PI * 2);
+    ctx.stroke();
+    const vx = pt.x + Math.cos(tSec * 3 + idx) * 45;
+    const vy = pt.y - 35;
+    ctx.beginPath();
+    ctx.moveTo(pt.x, pt.y);
+    ctx.lineTo(vx, vy);
+    ctx.stroke();
+    ctx.fillStyle = '#00f0ff';
+    ctx.font = 'bold 12px monospace';
+    ctx.fillText(`${wName}: ω=${(12.4 + Math.sin(tSec*4+idx)*2.1).toFixed(1)} rad/s`, pt.x - 45, pt.y + 34);
+  });
+
+  const bx = w * 0.04, by = h * 0.16;
+  ctx.fillStyle = 'rgba(8, 16, 28, 0.86)';
+  ctx.strokeStyle = '#00f0ff';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.roundRect(bx, by, 340, 148, 12);
+  ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#00f0ff';
+  ctx.font = 'bold 13px monospace';
+  ctx.fillText('◀ DIGITAL TWIN SIMULATION (CAD/ISAAC)', bx + 16, by + 26);
+  ctx.fillStyle = '#e2e8f0';
+  ctx.font = '12px monospace';
+  ctx.fillText('• CAD Assembly : xiaozhi_robot.iam (659 parts)', bx + 16, by + 50);
+  ctx.fillText(`• Mecanum Kinematics: Vx=${(Math.sin(tSec*2)*0.45).toFixed(2)} Vy=${(Math.cos(tSec*2)*0.32).toFixed(2)} m/s`, bx + 16, by + 72);
+  ctx.fillText('• ESP-NOW Link : 2.4GHz Dipole Antenna <0.8ms', bx + 16, by + 94);
+  ctx.fillText(`• Dual INMP441 : Azimuth ${(Math.sin(tSec*1.5)*35).toFixed(1)}° VAD=ACTIVE`, bx + 16, by + 116);
+  ctx.fillStyle = '#76b900';
+  ctx.fillText('• Sim-to-Real Sync Error: < 0.02 mm', bx + 16, by + 136);
+  ctx.restore();
+
+  if (realVideoActive && realVideoEl.readyState >= 2) {
+    ctx.save();
+    const pw = Math.min(460, w * 0.28);
+    const ph = pw * 0.62;
+    const px = w * 0.95 - pw;
+    const py = h * 0.16;
+    ctx.strokeStyle = '#ff9f0a';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.roundRect(px, py, pw, ph, 16);
+    ctx.stroke();
+    ctx.save();
+    ctx.beginPath();
+    ctx.roundRect(px, py, pw, ph, 16);
+    ctx.clip();
+    ctx.drawImage(realVideoEl, px, py, pw, ph);
+    ctx.restore();
+    ctx.fillStyle = 'rgba(0,0,0,0.75)';
+    ctx.fillRect(px + 12, py + 12, 235, 28);
+    ctx.fillStyle = '#ff9f0a';
+    ctx.font = 'bold 12px monospace';
+    ctx.fillText('● REAL HARDWARE FEED (LIVE)', px + 22, py + 30);
+    ctx.restore();
+  } else {
+    ctx.save();
+    const rx = Math.max(splitX + 24, w * 0.95 - 320);
+    const ry = h * 0.16;
+    if (rx + 300 < w) {
+      ctx.fillStyle = 'rgba(14, 18, 26, 0.86)';
+      ctx.strokeStyle = '#ff9f0a';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.roundRect(rx, ry, 305, 92, 12);
+      ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#ff9f0a';
+      ctx.font = 'bold 13px monospace';
+      ctx.fillText('PHYSICAL REALITY / PBR TWIN ▶', rx + 16, ry + 26);
+      ctx.fillStyle = '#e2e8f0';
+      ctx.font = '12px monospace';
+      ctx.fillText('• Vỏ in 3D BambuLab PLA+ & Antenna Đuôi', rx + 16, ry + 50);
+      ctx.fillText('• Bo mạch Altium Custom pcb_xiaozhi NEW', rx + 16, ry + 72);
+    }
+    ctx.restore();
+  }
+
+  ctx.save();
+  ctx.strokeStyle = '#00f0ff';
+  ctx.shadowColor = '#00f0ff';
+  ctx.shadowBlur = 20;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(splitX, 0);
+  ctx.lineTo(splitX, h);
+  ctx.stroke();
+
+  ctx.fillStyle = '#050811';
+  ctx.strokeStyle = '#00f0ff';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(splitX - 78, h * 0.5 - 18, 156, 36, 18);
+  ctx.fill(); ctx.stroke();
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 12px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('◀ SIM  ⇄  REAL ▶', splitX, h * 0.5 + 4);
+  ctx.restore();
+}
+
+function drawBentoOverlay(ctx, w, h, alpha) {
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  const scale = w / 1920;
+  const startX = w * 0.48;
+  const startY = h * 0.16;
+  const cards = [
+    { col: 0, row: 0, tag: "CORE AI BRAIN", val: "WeAct ESP32-S3 N16R8", sub: "240MHz Dual-Core • 8MB Octal PSRAM • 16MB Flash", color: "#2997ff" },
+    { col: 1, row: 0, tag: "ACOUSTIC BEAMFORMING", val: "Dual INMP441 I2S Mics", sub: "Left/Right Ear Array • IIR DC-Blocker + VAD", color: "#00f0ff" },
+    { col: 0, row: 1, tag: "HI-FI VOICE & EMOTION UI", val: "PCM5100A + 2.8\" TFT", sub: "32-bit 384kHz I2S Audio • ILI9341 60FPS Eyes", color: "#76b900" },
+    { col: 1, row: 1, tag: "TRUE MECANUM DRIVE", val: "4x MacWheel_WN + ESP-NOW", sub: "36 Angled 45° Rollers • 4x Johnson Geared Motors", color: "#ff9f0a" },
+    { col: 0, row: 2, tag: "RF & SMART POWER", val: "Dipole Antenna + Auto-Sleep", sub: "Rear 2.4GHz Whip Antenna • 12mm LED Switch • 2S2P", color: "#a855f7" },
+    { col: 1, row: 2, tag: "SIM-TO-REAL ARCHITECTURE", val: "Inventor ⇄ Altium ⇄ Code", sub: "ReShape Lab • Bộ môn Điện – Cơ khí • FPT Polytechnic", color: "#ec4899" }
+  ];
+  const cw = Math.min(430, w * 0.235);
+  const ch = Math.min(126, h * 0.158);
+  const gap = 16;
+
+  cards.forEach(c => {
+    const x = startX + c.col * (cw + gap);
+    const y = startY + c.row * (ch + gap);
+    ctx.fillStyle = 'rgba(8, 12, 20, 0.86)';
+    ctx.strokeStyle = c.color;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.roundRect(x, y, cw, ch, 16);
+    ctx.fill(); ctx.stroke();
+
+    ctx.fillStyle = c.color;
+    ctx.font = `bold ${Math.round(11 * Math.max(0.85, scale))}px sans-serif`;
+    ctx.fillText(c.tag, x + 20, y + 27);
+    ctx.fillStyle = '#fff';
+    ctx.font = `bold ${Math.round(20 * Math.max(0.85, scale))}px sans-serif`;
+    ctx.fillText(c.val, x + 20, y + 59);
+    ctx.fillStyle = '#a1a1aa';
+    ctx.font = `${Math.round(12.5 * Math.max(0.85, scale))}px sans-serif`;
+    ctx.fillText(c.sub, x + 20, y + 90);
+  });
+  ctx.restore();
+}
+
+function renderCompositeFrame(activeAct, localProgress, tSec) {
+  const w = outCanvas.width;
+  const h = outCanvas.height;
+  outCtx.clearRect(0, 0, w, h);
+  outCtx.drawImage(webglCanvas, 0, 0, w, h);
+
+  // Sim-to-Real Split Screen Wipe
+  const showSimReal = manualSimReal || (activeAct && activeAct.simSplit > 0.5);
+  if (showSimReal) {
+    const splitRatio = isPlaying
+      ? 0.25 + 0.55 * (0.5 + 0.5 * Math.sin(localProgress * Math.PI * 2))
+      : 0.50 + 0.18 * Math.sin(tSec * 1.1);
+    drawSimToRealOverlay(outCtx, w, h, w * splitRatio, tSec);
+  }
+
+  // Exploded View 3D Engineering Callouts (6 clean callouts covering CAM, Antenna, Shell, PCB, and Full Mecanum Base!)
+  if (currentExplode > 0.28 && (!activeAct || !(currentMode === 'commercial' && activeAct.id === 4))) {
+    const callAlpha = Math.min(1, (currentExplode - 0.28) / 0.45);
+    draw3DCallout(outCtx, new THREE.Vector3(8, 228, 0), -255, -35,
+      "VISION MODULE • TOP TURRET", "ESP32-S3-MOUDULECAM_MINI", "Tách rời độc lập • Thị giác máy tính & Nhận diện", "#a855f7", w, h, callAlpha);
+    draw3DCallout(outCtx, new THREE.Vector3(-125, 195, 0), -240, 28,
+      "RF & POWER • REAR PANEL", "Antenna Dipole 2.4GHz + Nút Nguồn Kim Loại 12mm", "Khớp nối SMA • Vòng LED Cyan • Vỏ Nhựa In 3D PETG", "#2997ff", w, h, callAlpha);
+    draw3DCallout(outCtx, new THREE.Vector3(105, 86, 0), 180, -45,
+      "EMOTION DISPLAY • FRONT", "Màn hình 2.8\" ILI9341 SPI + Ốp Mặt PETG", "Đôi mắt AI 60FPS biểu cảm • Tem chữ trắng RESHAPE LAB", "#00f0ff", w, h, callAlpha);
+    draw3DCallout(outCtx, new THREE.Vector3(0, 56, 0), 210, 18,
+      "MAINBOARD • CUSTOM ALTIUM PCB", "pcb_xiaozhi NEW (WeAct ESP32-S3 N16R8)", "Dual Mic INMP441 I2S • PCM5100A DAC • Lỗ nạp code mới", "#76b900", w, h, callAlpha);
+    draw3DCallout(outCtx, new THREE.Vector3(0, -108, 0), -245, 42,
+      "MECANUM BASE • FULL EXPLODED", "Khung Đế PETG + Mạch Đế + 4 Động Cơ Kim Loại", "4 Bánh Mecanum (36 Con lăn) • Hộp Pin 4x18650 • Nắp Đáy", "#ff9f0a", w, h, callAlpha);
+  }
+
+  // Reachy Mini Companion Speech Bubble in Media Mode Scene 1 & Scene 3
+  const introDur = currentMode === 'commercial' ? 4.3 : 2.9;
+  if (currentMode === 'media' && activeAct && (activeAct.id === 0 || activeAct.id === 2) && (!isPlaying || tSec > introDur)) {
+    const headPt = project3DTo2D(new THREE.Vector3(55, 95, 0), w, h);
+    if (headPt.visible) {
+      outCtx.save();
+      const msg = activeAct.id === 0
+        ? "💬 \"Xin chào BGK! Tớ là Xiaozhi Pro từ ReShape Lab!\""
+        : "🎙️ Beamforming VAD: Đã khóa hướng giọng nói (Azimuth +18°)";
+      outCtx.font = `bold ${Math.round(w * 0.011)}px sans-serif`;
+      const tw = outCtx.measureText(msg).width + 36;
+      const bx = Math.min(w - tw - 30, Math.max(30, headPt.x + 30));
+      const by = Math.max(80, headPt.y - 75);
+      outCtx.fillStyle = 'rgba(15, 23, 42, 0.90)';
+      outCtx.strokeStyle = '#ff9f0a';
+      outCtx.lineWidth = 2;
+      outCtx.beginPath();
+      outCtx.roundRect(bx, by, tw, 46, 23);
+      outCtx.fill(); outCtx.stroke();
+      outCtx.fillStyle = '#fff';
+      outCtx.fillText(msg, bx + 18, by + 28);
+      outCtx.restore();
+    }
+  }
+
+  // Bento Grid in Commercial Act V
+  if (currentMode === 'commercial' && activeAct && activeAct.id === 4) {
+    const fade = Math.min(1, localProgress * 4) * Math.min(1, (1 - localProgress) * 5);
+    drawBentoOverlay(outCtx, w, h, fade);
+  }
+
+  // Clean Lower-Third Apple / NVIDIA / Reachy Title Superimposition (shown after Intro Logo finishes zooming!)
+  if (activeAct && (isPlaying || document.body.classList.contains('cinema-active')) && tSec > introDur * 0.82) {
+    const introFadeIn = Math.min(1, Math.max(0, (tSec - introDur * 0.82) / 0.7));
+    const fade = introFadeIn * Math.min(1, localProgress * 4.5) * Math.min(1, (1 - localProgress) * 4.5);
+    outCtx.save();
+    outCtx.globalAlpha = fade;
+
+    const leftX = w * 0.05;
+    const baseY = h * 0.83;
+
+    outCtx.fillStyle = currentMode === 'media' ? '#ff9f0a' : '#00f0ff';
+    outCtx.font = `700 ${Math.round(w * 0.0085)}px -apple-system, BlinkMacSystemFont, sans-serif`;
+    outCtx.fillText(activeAct.kicker, leftX, baseY - h * 0.064);
+
+    outCtx.fillStyle = '#ffffff';
+    outCtx.shadowColor = 'rgba(0,0,0,0.92)';
+    outCtx.shadowBlur = 20;
+    outCtx.font = `800 ${Math.round(w * 0.025)}px -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif`;
+    outCtx.fillText(activeAct.title, leftX, baseY - h * 0.021);
+
+    outCtx.fillStyle = '#e5e7eb';
+    outCtx.font = `500 ${Math.round(w * 0.0112)}px -apple-system, BlinkMacSystemFont, sans-serif`;
+    outCtx.fillText(activeAct.subtitle, leftX, baseY + h * 0.014);
+
+    outCtx.textAlign = 'right';
+    outCtx.fillStyle = 'rgba(255,255,255,0.9)';
+    outCtx.font = `700 ${Math.round(w * 0.008)}px sans-serif`;
+    outCtx.fillText("RESHAPE LAB • FPT POLYTECHNIC ĐÀ NẴNG", w * 0.95, h * 0.09);
+    outCtx.fillStyle = currentMode === 'media' ? '#ff9f0a' : '#76b900';
+    outCtx.font = `700 ${Math.round(w * 0.007)}px monospace`;
+    outCtx.fillText(activeAct.badge, w * 0.95, h * 0.11);
+
+    outCtx.restore();
+  }
+
+  // ReShape Lab Opening Sequence Overlay (0.0s .. introDur):
+  // 1) ReShape Spider-Circuit Logo flies down to screen center
+  // 2) "RESHAPE LAB" text reveals
+  // 3) Center logo zooms out dramatically (1x -> 16x) and fades out into the 3D scene!
+  if (isPlaying && tSec < introDur) {
+    drawReShapeIntroOverlay(outCtx, w, h, tSec, introDur);
+  }
+}
+
+// ============================================================================
+// 8. MAIN ANIMATION LOOP (100% SEAMLESS CAMERA SPLINE + TRUE WHEEL AXLE SPIN)
+// ============================================================================
+function animate(now) {
+  requestAnimationFrame(animate);
+  const dt = Math.min(0.1, (now - lastFrameTime) / 1000);
+  lastFrameTime = now;
+
+  const tl = TIMELINES[currentMode];
+  let activeAct = null;
+  let localProgress = 0.5;
+
+  if (isPlaying) {
+    playTime += dt;
+    if (playTime >= tl.duration) {
+      playTime = tl.duration;
+      stopPlayback();
+    }
+    sound.triggerCues(currentMode, playTime);
+
+    activeAct = tl.acts.find(a => playTime >= a.start && playTime <= a.end) || tl.acts[tl.acts.length - 1];
+    localProgress = (playTime - activeAct.start) / (activeAct.end - activeAct.start);
+
+    // Evaluate 100% Continuous C2-Smooth Spherical Camera Spline (Zero jump-cuts!)
+    const camState = evaluateSeamlessSpline(currentMode, playTime);
+    const azRad = THREE.MathUtils.degToRad(camState.az);
+    const elRad = THREE.MathUtils.degToRad(camState.el);
+    const horizR = camState.r * Math.cos(elRad);
+
+    camera.position.set(
+      camState.tx + horizR * Math.cos(azRad),
+      camState.ty + camState.r * Math.sin(elRad),
+      camState.tz + horizR * Math.sin(azRad)
+    );
+    controls.target.set(camState.tx, camState.ty, camState.tz);
+    currentExplode = camState.exp;
+
+    document.getElementById('timeline-fill').style.width = ((playTime / tl.duration) * 100).toFixed(1) + '%';
+    document.getElementById('time-readout').textContent = `${formatTime(playTime)} / ${formatTime(tl.duration)}`;
+    document.getElementById('act-readout').textContent = activeAct.badge;
+    document.querySelectorAll('.scene-btn').forEach(b => {
+      b.classList.toggle('active', Number(b.dataset.act) === activeAct.id);
+    });
+  } else {
+    currentExplode = THREE.MathUtils.lerp(currentExplode, manualExplode ? 1.0 : 0.0, dt * 4.5);
+  }
+
+  // Apply Full 16-Group Multi-Directional Exploded View Offsets (including ESP32-S3 CAM, Tail Antenna, 12mm Metal Button, and 5-Layer Mecanum Base!)
+  const exp = currentExplode;
+  groups.cube_cam.position.set(0, exp * 116, 0);             // ESP32-S3 CAM lifts +48mm above cube_top!
+  groups.cube_antenna.position.set(-exp * 58, exp * 76, 0);  // Tail Dipole Antenna explodes backward -58mm & up!
+  groups.cube_pwr_btn.position.set(-exp * 38, exp * 68, 0);  // 12mm Metal Power Button explodes backward -38mm!
+  groups.cube_top.position.set(0, exp * 68, 0);              // Top PETG Shell + ReShape Logo + 5 Black Pads + RESHAPE LAB Badges
+  groups.cube_display.position.set(exp * 60, exp * 28, 0);   // Front Bezel + 2.8" ILI9341 TFT explodes forward +60mm
+  groups.cube_pcb.position.set(0, exp * 26, 0);              // Custom Altium PCB (pcb_xiaozhi NEW) + WeAct ESP32-S3
+  groups.cube_battery.position.set(0, exp * 10, 0);          // Cube Li-ion Battery
+  groups.cube_bot.position.set(0, -exp * 6, 0);              // Bottom PETG Shell (with code-flashing holes)
+  groups.dock_plate.position.set(0, -exp * 26, 0);           // Top Docking Plate (đế lót + ReShape Gear-Circuit Logo)
+  groups.base_pcb.position.set(0, -exp * 44, 0);             // Mecanum Base Controller PCB (newly added!)
+  groups.base_chassis.position.set(0, -exp * 64, 0);         // Mecanum Upper Chassis (đế xe mecanum)
+  groups.base_motors.position.set(0, -exp * 92, 0);          // 4x Metal Johnson Geared Motors drop down below upper chassis!
+  groups.base_battery.position.set(0, -exp * 92, 0);         // 4x18650 Base Battery Box drops down alongside motors!
+  groups.base_bottom.position.set(0, -exp * 120, 0);         // Mecanum Bottom Cover Plates (đế xe mecanum dưới) drop to bottom!
+
+  const pivs = window.XIAOZHI_IAM_DATA ? window.XIAOZHI_IAM_DATA.wheelPivots : {};
+  ['wheel_FL', 'wheel_FR', 'wheel_RL', 'wheel_RR'].forEach(wName => {
+    const p = pivs[wName];
+    if (!p) return;
+    const zSign = p[2] >= 0 ? 1 : -1;
+    groups[wName].position.set(p[0], p[1] - exp * 64, p[2] + zSign * exp * 50);
+  });
+  floorMesh.position.y  = -78.0 - exp * 120;
+  gridHelper.position.y = -77.8 - exp * 120;
+
+  // Smooth Dynamic Robot Choreography (using smooth sin envelopes so robot position never jumps at Act boundaries!)
+  const tSec = isPlaying ? playTime : now * 0.001;
+  let wheelSpeedFL = 1.6, wheelSpeedFR = 1.6, wheelSpeedRL = 1.6, wheelSpeedRR = 1.6;
+
+  if (currentMode === 'media' && activeAct && activeAct.id === 0) {
+    const env = Math.sin(localProgress * Math.PI);
+    robotRoot.rotation.y = Math.sin(tSec * 2.6) * 0.22 * env;
+    robotRoot.rotation.z = Math.sin(tSec * 3.2) * 0.035 * env;
+    robotRoot.position.set(0, 0, 0);
+  } else if (currentMode === 'media' && activeAct && activeAct.id === 2) {
+    const env = Math.sin(localProgress * Math.PI);
+    robotRoot.rotation.y = Math.sin(tSec * 1.5) * 0.26 * env;
+    micWaveRings.forEach(item => {
+      const wv = (now * 0.0022 + item.idx * 0.33) % 1.0;
+      item.mesh.position.set(0, 58 + currentExplode * 24, item.side * (95 - wv * 38));
+      item.mesh.scale.setScalar(1.3 - wv * 0.6);
+      item.mesh.material.opacity = (1 - wv) * 0.85 * env;
+    });
+  } else if ((currentMode === 'commercial' && activeAct && activeAct.id === 3) ||
+             (currentMode === 'media' && activeAct && activeAct.id === 3)) {
+    // Smooth bell-curve envelope (0 at start of Act 3, 1 in middle, 0 at end of Act 3 -> zero jump!)
+    const env = Math.sin(localProgress * Math.PI);
+    robotRoot.position.x = Math.sin(localProgress * Math.PI * 2) * 40 * env;
+    robotRoot.position.z = Math.sin(localProgress * Math.PI * 4) * 26 * env;
+    robotRoot.rotation.y = Math.sin(localProgress * Math.PI * 2) * 0.42 * env;
+    wheelSpeedFL = 8.5; wheelSpeedFR = -8.5; wheelSpeedRL = -8.5; wheelSpeedRR = 8.5;
+
+    // Smooth Unpair Vertical Docking Lift in the second half of Act 3 (both Commercial & Media!)
+    if (localProgress > 0.54) {
+      const liftPhase = (localProgress - 0.54) / 0.46;
+      const lift = Math.sin(liftPhase * Math.PI) * 44;
+      groups.cube_cam.position.y += lift;
+      groups.cube_antenna.position.y += lift;
+      groups.cube_pwr_btn.position.y += lift;
+      groups.cube_top.position.y += lift;
+      groups.cube_display.position.y += lift;
+      groups.cube_pcb.position.y += lift;
+      groups.cube_battery.position.y += lift;
+      groups.cube_bot.position.y += lift;
+      if (lift > 15) {
+        wheelSpeedFL = 0; wheelSpeedFR = 0; wheelSpeedRL = 0; wheelSpeedRR = 0;
+      }
+    }
+
+    espNowRings.forEach((r, idx) => {
+      const wave = (now * 0.002 + idx * 0.33) % 1.0;
+      r.position.set(robotRoot.position.x, 10 - wave * 50, robotRoot.position.z);
+      r.scale.setScalar(0.6 + wave * 0.9);
+      r.material.opacity = (1 - wave) * 0.8 * env;
+    });
+  } else {
+    robotRoot.position.x = THREE.MathUtils.lerp(robotRoot.position.x, 0, dt * 5);
+    robotRoot.position.z = THREE.MathUtils.lerp(robotRoot.position.z, 0, dt * 5);
+    robotRoot.rotation.y = THREE.MathUtils.lerp(robotRoot.rotation.y, 0, dt * 5);
+    robotRoot.rotation.z = THREE.MathUtils.lerp(robotRoot.rotation.z, 0, dt * 5);
+    espNowRings.forEach(r => { r.material.opacity = 0; });
+    micWaveRings.forEach(m => { m.mesh.material.opacity = 0; });
+  }
+
+  groups.wheel_FL.rotation.x += dt * wheelSpeedFL;
+  groups.wheel_FR.rotation.x += dt * wheelSpeedFR;
+  groups.wheel_RL.rotation.x += dt * wheelSpeedRL;
+  groups.wheel_RR.rotation.x += dt * wheelSpeedRR;
+
+  updateLivingEyes(tSec, currentMode, activeAct ? activeAct.id : 0);
+  controls.update();
+  renderer.render(scene, camera);
+  renderCompositeFrame(activeAct, localProgress, tSec);
+}
+
+function formatTime(s) {
+  const mm = String(Math.floor(s / 60)).padStart(2, '0');
+  const ss = (s % 60).toFixed(1).padStart(4, '0');
+  return `${mm}:${ss}`;
+}
+
+// ============================================================================
+// 9. UI EVENT HANDLERS, MODE SWITCHER & 60FPS VIDEO RECORDER
+// ============================================================================
+const btnPlay = document.getElementById('btn-play');
+const btnRecord = document.getElementById('btn-record');
+const btnExplode = document.getElementById('btn-explode');
+const btnSimReal = document.getElementById('btn-simreal');
+const btnRealCam = document.getElementById('btn-realcam');
+const btnAudio = document.getElementById('btn-audio');
+const tabCommercial = document.getElementById('tab-commercial');
+const tabMedia = document.getElementById('tab-media');
+
+function switchMode(newMode) {
+  currentMode = newMode;
+  isPlaying = false;
+  playTime = 0;
+  sound.lastCue = -1;
+  tabCommercial.className = 'mode-tab' + (newMode === 'commercial' ? ' active-commercial' : '');
+  tabMedia.className = 'mode-tab' + (newMode === 'media' ? ' active-media' : '');
+  rebuildSceneButtons();
+  document.getElementById('time-readout').textContent = `00:00.0 / ${formatTime(TIMELINES[newMode].duration)}`;
+  document.getElementById('act-readout').textContent = newMode === 'commercial'
+    ? 'MODE 1: 45s RESHAPE COMMERCIAL'
+    : 'MODE 2: 30s SIM-TO-REAL & REACHY MEDIA';
+  btnPlay.textContent = '▶ PHÁT VIDEO (CÓ ÂM THANH)';
+}
+
+tabCommercial.addEventListener('click', () => switchMode('commercial'));
+tabMedia.addEventListener('click', () => switchMode('media'));
+
+function startPlayback(fromStart = true) {
+  sound.resume();
+  const dur = TIMELINES[currentMode].duration;
+  if (fromStart || playTime >= dur - 0.3) {
+    playTime = 0;
+    sound.lastCue = -1;
+  }
+  isPlaying = true;
+  document.body.classList.add('cinema-active');
+  btnPlay.textContent = '⏸ TẠM DỪNG';
+}
+
+function stopPlayback() {
+  isPlaying = false;
+  btnPlay.textContent = '▶ PHÁT VIDEO (CÓ ÂM THANH)';
+  if (mediaRecorder && mediaRecorder.state === 'recording') {
+    mediaRecorder.stop();
+  }
+}
+
+btnPlay.addEventListener('click', () => {
+  if (isPlaying) stopPlayback();
+  else startPlayback(playTime >= TIMELINES[currentMode].duration - 0.4 || playTime === 0);
+});
+
+document.getElementById('timeline-bar').addEventListener('click', (e) => {
+  const rect = e.currentTarget.getBoundingClientRect();
+  const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+  playTime = ratio * TIMELINES[currentMode].duration;
+  sound.lastCue = -1;
+  if (!isPlaying) startPlayback(false);
+});
+
+btnExplode.addEventListener('click', () => {
+  isPlaying = false;
+  manualExplode = !manualExplode;
+  btnExplode.classList.toggle('active', manualExplode);
+  btnPlay.textContent = '▶ PHÁT VIDEO (CÓ ÂM THANH)';
+});
+
+btnSimReal.addEventListener('click', () => {
+  manualSimReal = !manualSimReal;
+  btnSimReal.classList.toggle('active', manualSimReal);
+});
+
+// Attach Real Robot Video (.mp4) or Live Webcam for Sim-to-Real Split Screen!
+const videoInput = document.getElementById('video-file-input');
+btnRealCam.addEventListener('click', async () => {
+  if (realVideoActive) {
+    realVideoActive = false;
+    btnRealCam.classList.remove('active');
+    btnRealCam.textContent = '📷 Ghép Video/Cam Thật';
+    if (realVideoEl.srcObject) {
+      realVideoEl.srcObject.getTracks().forEach(t => t.stop());
+      realVideoEl.srcObject = null;
+    }
+    return;
+  }
+  // Try opening file picker for a real robot video clip (.mp4/.mov), or webcam if canceled
+  videoInput.click();
+});
+
+videoInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  realVideoEl.srcObject = null;
+  realVideoEl.src = URL.createObjectURL(file);
+  realVideoEl.play();
+  realVideoActive = true;
+  manualSimReal = true;
+  btnSimReal.classList.add('active');
+  btnRealCam.classList.add('active');
+  btnRealCam.textContent = '📷 Đang ghép Video Thật (Click để tắt)';
+});
+
+btnAudio.addEventListener('click', () => {
+  sound.enabled = !sound.enabled;
+  btnAudio.textContent = sound.enabled ? '🔊 Nhạc: BẬT' : '🔇 Nhạc: TẮT';
+});
+
+// 60FPS Video Recorder
+let mediaRecorder = null;
+let recordedChunks = [];
+
+btnRecord.addEventListener('click', () => {
+  if (mediaRecorder && mediaRecorder.state === 'recording') {
+    mediaRecorder.stop();
+    return;
+  }
+  sound.resume();
+  recordedChunks = [];
+  const stream = outCanvas.captureStream(60);
+  if (sound.dest && sound.enabled) {
+    const aTracks = sound.dest.stream.getAudioTracks();
+    if (aTracks.length > 0) stream.addTrack(aTracks[0]);
+  }
+  const mimeTypes = [
+    'video/mp4;codecs=avc1',
+    'video/webm;codecs=vp9,opus',
+    'video/webm;codecs=vp8,opus',
+    'video/webm'
+  ];
+  let selectedMime = '';
+  for (const m of mimeTypes) {
+    if (MediaRecorder.isTypeSupported(m)) { selectedMime = m; break; }
+  }
+  mediaRecorder = new MediaRecorder(stream, {
+    mimeType: selectedMime || undefined,
+    videoBitsPerSecond: 16000000
+  });
+  mediaRecorder.ondataavailable = (e) => {
+    if (e.data && e.data.size > 0) recordedChunks.push(e.data);
+  };
+  mediaRecorder.onstop = () => {
+    btnRecord.classList.remove('recording');
+    btnRecord.textContent = '🔴 GHI & TẢI VIDEO (.WEBM / MP4 60FPS)';
+    document.getElementById('rec-badge').classList.remove('show');
+    const ext = selectedMime.includes('mp4') ? 'mp4' : 'webm';
+    const blob = new Blob(recordedChunks, { type: selectedMime || 'video/webm' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const tag = currentMode === 'commercial' ? '45s_Apple_NVIDIA_Commercial' : '30s_SimToReal_Reachy_Media';
+    a.download = `Xiaozhi_Pro_${tag}_60FPS.${ext}`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  };
+  mediaRecorder.start(100);
+  btnRecord.classList.add('recording');
+  btnRecord.textContent = '⏹ DỪNG & LƯU VIDEO';
+  document.getElementById('rec-badge').classList.add('show');
+  startPlayback(true);
+});
+
+requestAnimationFrame(animate);
+</script>
+</body>
+</html>
